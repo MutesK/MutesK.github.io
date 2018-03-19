@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Game Server Programming 2 · Mute의 개발 블로그</title><meta name="description" content="IOCP
+동작원리
+IOCP 생성
+IO장치와 IOCP 연결
+
+
+IO Completion Queue
+
+
+Page-Lock
+Non-Paged Pool
+Non-Paged Pool의 사용되는 경우
+Zero Byte Recv
+SO_RCVBUF, SO_SNDBUF
+
+
+Thread
+"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul><div class="footer"><a target="_blank" href="/"><span>Theme by </span></a><a href="https://www.caicai.me"> CaiCai </a><span>&</span><a href="https://github.com/Ben02/hexo-theme-Anatole"> Ben</a><div class="by_farbox"><a href="https://hexo.io/zh-cn/" target="_blank">Proudly published with Hexo&#65281;</a></div></div></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>Game Server Programming 2</a></h3></div><div class="post-content"><!-- TOC -->
+<ul>
+<li><a href="#iocp">IOCP</a><ul>
+<li><a href="#동작원리">동작원리</a><ul>
+<li><a href="#iocp-생성">IOCP 생성</a></li>
+<li><a href="#io장치와-iocp-연결">IO장치와 IOCP 연결</a></li>
+</ul>
+</li>
+<li><a href="#io-completion-queue">IO Completion Queue</a></li>
+</ul>
+</li>
+<li><a href="#page-lock">Page-Lock</a></li>
+<li><a href="#non-paged-pool">Non-Paged Pool</a><ul>
+<li><a href="#non-paged-pool의-사용되는-경우">Non-Paged Pool의 사용되는 경우</a></li>
+<li><a href="#zero-byte-recv">Zero Byte Recv</a></li>
+<li><a href="#so_rcvbuf-so_sndbuf">SO_RCVBUF, SO_SNDBUF</a></li>
+</ul>
+</li>
+<li><a href="#thread">Thread</a><ul>
+<li><a href="#멀티스레드-프로그램을-사용하는-이유">멀티스레드 프로그램을 사용하는 이유</a></li>
+<li><a href="#스레드를-사용하면-안되는-경우">스레드를 사용하면 안되는 경우</a></li>
+<li><a href="#스케쥴러">스케쥴러</a><ul>
+<li><a href="#문맥교환">문맥교환</a></li>
+<li><a href="#스레드-상태">스레드 상태</a><ul>
+<li><a href="#running">Running</a></li>
+<li><a href="#ready">Ready</a></li>
+<li><a href="#block--suspended">Block / Suspended</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#최소-단위-오퍼레이션-atomic-operation">최소 단위 오퍼레이션 (Atomic Operation)</a></li>
+<li><a href="#상호-배제">상호 배제</a></li>
+<li><a href="#교착-상태">교착 상태</a></li>
+<li><a href="#스레드-역학">스레드 역학</a></li>
+<li><a href="#스레드-동기화-방법">스레드 동기화 방법</a><ul>
+<li><a href="#interlocked-계열">Interlocked 계열</a></li>
+</ul>
+</li>
+<li><a href="#critical-section">Critical Section</a><ul>
+<li><a href="#spin-lock">Spin Lock</a></li>
+<li><a href="#waitforsingleobject-waitformultipleobject">WaitForSingleObject, WaitForMultipleObject</a></li>
+<li><a href="#mutex">Mutex</a><ul>
+<li><a href="#동작원리-1">동작원리</a></li>
+</ul>
+</li>
+<li><a href="#event">Event</a><ul>
+<li><a href="#동작원리-2">동작원리</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<h1 id="IOCP"><a href="#IOCP" class="headerlink" title="IOCP"></a>IOCP</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">커널 객체로써, 입출력 완료 포트(I/O Completion Port)이다.</span><br><span class="line">특수한 목적으로 사용되며, 한정적인 객체.</span><br><span class="line">프로세스 사이에서 IOCP 객체 공유는 불가능하며, 윈도우에서 제공하는 비동기 입출력을 위한 훌륭한 메커니즘이다.</span><br><span class="line">IOCP는 입출력 완료에 대한 처리를 수행할 스레드를 몇 개 미리 생성하여 스레드 풀을 구성한 후, 입출력 완료 시마다 스레드 풀의 임의의 스레드를 출어서 끄집어 내 완료 후의 처리를 담당하게 한다.</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>참고로 스레드는 디폴트로 1M의 스레드 스택을 가진다. 또한 스레드 문맥을 비록하여 자체 정보를 담기 위해 메모리를 소비한다.</p>
+</li>
+<li><p>IOCP는 가장 큰 특징은 요구사항을 처리해주는 스레드의 수를 제한할수 있다.</p>
+</li>
+<li><p>IOCP는 스레드를 적극적으로 활용하기 위해 만들어졌다.</p>
+</li>
+<li><p>IOCP는 기본적으로 스레드 풀의 형성이고, 따라서 최소 몇 개의 스레드를 전제하고 있다. </p>
+</li>
+</ul>
+<h2 id="동작원리"><a href="#동작원리" class="headerlink" title="동작원리"></a>동작원리</h2><h3 id="IOCP-생성"><a href="#IOCP-생성" class="headerlink" title="IOCP 생성"></a>IOCP 생성</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CreateIoComepletionPort(</span><br><span class="line">       HANDLE FileHandle,      <span class="comment">// IOCP 연결할 핸들</span></span><br><span class="line">       </span><br><span class="line">       HANDLE ExistingCompletionPort,  <span class="comment">// IOCP 핸들 없다면 NULL</span></span><br><span class="line">       ULONG_PTR   CompletionKey,      <span class="comment">// IO 완료시 넘어갈 값, 사용자가 넘기고싶은값을 넘김.</span></span><br><span class="line">       DWORD   NumberOfConcurrentThread      <span class="comment">// 한번에 동작할수 있는 최대 스레드 수, 0을 넣으면 자동으로 최적의 값을 넣어준다. </span></span><br><span class="line">       );</span><br></pre></td></tr></table></figure>
+<h3 id="IO장치와-IOCP-연결"><a href="#IO장치와-IOCP-연결" class="headerlink" title="IO장치와 IOCP 연결"></a>IO장치와 IOCP 연결</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">HANDLE hPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, <span class="literal">NULL</span>, <span class="number">0</span>, <span class="number">0</span>);        <span class="comment">// IOCP Handle</span></span><br><span class="line">HANDLE Port = CreateIoCompletionPort(</span><br><span class="line">    socket, hPort, (ULONG_PTR)id, <span class="number">0</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>두번째 CreateIoCompletionPort를 호출하면서  IOCP 장치리스트에 새로운 레코드를 추가한다.</p>
+</li>
+<li><p>삭제할 시점은 해당 장치의 핸들이 닫혔을때 이다.(위는 소켓을 썻으니 closesocket을 호출시켜야 된다.)</p>
+</li>
+</ul>
+<h2 id="IO-Completion-Queue"><a href="#IO-Completion-Queue" class="headerlink" title="IO Completion Queue"></a>IO Completion Queue</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">이 큐는 IOCP와 연결한 Device의 IO 작업이 끝났음을 알려주는 큐이다.</span><br><span class="line"></span><br><span class="line">스레드에서 IO Completion Queue에서 작업거리르 꺼내 IO완료에 따른 처리를 수행하게 한다.</span><br><span class="line"></span><br><span class="line">GetQueuedCompletionStatus 함수를 호출 했을때, 당장 IO Comepletion Queue에 항목이 없거나 동시 수행 가능한 스레드 개수를 초과한 경우 대기 큐에 들어가 대기하고 있다가 상황이 오면 IO완료에 대한 처리를 수행하게 한다.</span><br></pre></td></tr></table></figure>
+<h1 id="Page-Lock"><a href="#Page-Lock" class="headerlink" title="Page-Lock"></a>Page-Lock</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WSASend, WSARecv 의 경우 상황에 따라 제공된 버퍼가 페이징 되지 않도록 Lock을 걸게 된다.</span><br><span class="line"></span><br><span class="line">WSASend의 경우 소켓 버퍼가 가득찰 경우, </span><br><span class="line">WSARecv의 경우 소켓버퍼로 부터 받을 데이터가 없을 경우일 것.</span><br><span class="line"></span><br><span class="line">OS는 이렇게 잠겨진 메모리의 한계를 정의하고 있으며, 이 한계를 넘어가면 WSAENOBUFS로 Overlapped I/O는 실패하고 만다. 또 이렇게 전달된 유저 버퍼는 페이지 단위로 Lock를 걸게 된다. 1KB의 버퍼를 WSARecv 의 인자로 전달 했다면 OS는 4KB만큼 메모리를 잠근다는 뜻이다.</span><br><span class="line"></span><br><span class="line">메모리 낭비를 줄이기 위해서는 버퍼를 페이지 단위(4KB의 배수)로 잡는것이 효율적이다.</span><br></pre></td></tr></table></figure>
+<h1 id="Non-Paged-Pool"><a href="#Non-Paged-Pool" class="headerlink" title="Non-Paged Pool"></a>Non-Paged Pool</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Page-Locking이 일반 메모리를 페이징 안되도록 막는 개념이라면, Non-Paged Pool은 애초부터 물리 메모리에 상주하여 페이징이 안되도록 만들어놓은 영역이다. </span><br><span class="line"></span><br><span class="line">Page-Fault가 없다보니 접근 속도도 빠르며 고레벨 IRQL(Interrupt Request Level) 접근이 오류 없이 가능해진다. 그렇다보니 드라이버나 프로그렘들이 Non-Paged Pool을 남용하여 사용하게 되고, 제한된 리소스는 손쉽게 고갈되어 문제가 발생한다.</span><br><span class="line"></span><br><span class="line">보통 Non-Paged Pool은 Windows 2000이상의 버전에서는 물리메모리의 1/4가 한계이다.</span><br><span class="line"></span><br><span class="line">부족해지면 윈속함수에서 에러가 나오거나 운이 좋지않다면 시스템 에러로 손상될수 있다.</span><br></pre></td></tr></table></figure>
+<h2 id="Non-Paged-Pool의-사용되는-경우"><a href="#Non-Paged-Pool의-사용되는-경우" class="headerlink" title="Non-Paged Pool의 사용되는 경우"></a>Non-Paged Pool의 사용되는 경우</h2><ol>
+<li>드라이버와 같은 커널모드 컴포넌트에서 사용. WinSock, TCPIP.sys와 같은 프로토콜 드라이버도 이에 속함.</li>
+<li>소켓을 생성할때마다 소켓의 상태 정보를 저장하기 위한 용도로도 작은 양의 Non-Paged Pool 소비한다.</li>
+<li>소켓이 특정 주소로 바인딩되면, TCP/IP 스택은 로컬 주소 정보를 저장하기 위한 용도로도 Non-Paged Pool을 할당한다.</li>
+<li>Overlapped I/O 연산시 IRP(I/O Request Packet)을 발생시키면서 약 500 바이트의 Non-Paged Pool 할당한다.</li>
+</ol>
+<h2 id="Zero-Byte-Recv"><a href="#Zero-Byte-Recv" class="headerlink" title="Zero Byte Recv"></a>Zero Byte Recv</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Page Locking 최소화하기 위해 하는 방법.</span><br><span class="line"></span><br><span class="line">일단 Overlapped I/O 작업이 일어나면 Page-Locking + Non-Paged Pool의 소비는 필수적이다. </span><br><span class="line"></span><br><span class="line">0 바이트를 읽는 Recv 작업을 보내는 기법인데, 일단 읽는 크기가 0바이트이기 때문에 Page-Locking이 일어나지 않는다.</span><br><span class="line"></span><br><span class="line">IOCP는 Proactor 방식이기 때문에 실제 읽기 작업이 일어나지 않고 있어도  WSARecv하고 있어야 하고, 이 때문에 메모리가 아무 작업도 안하는데 Page-Locking이 될수 있다는 걸 생각해보면 Zero Byte Recv가 굉장히 효율적인 방식이 될수 있다.</span><br></pre></td></tr></table></figure>
+<h2 id="SO-RCVBUF-SO-SNDBUF"><a href="#SO-RCVBUF-SO-SNDBUF" class="headerlink" title="SO_RCVBUF, SO_SNDBUF"></a>SO_RCVBUF, SO_SNDBUF</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">송수신 버퍼 크기를 0으로 지정한다면, 커널 레벨에서의 송수신 버퍼를 이용하지 않고, App으로 바로 복사가 일어나므로 복사 횟수는 한번 줄어들고 속도도 굉장히 빨라진다. 물론 버퍼로의 직접 복사 때문에 Page-Locking은 일어난다. (이 방법의 문제는 Recv에서는 문제가 있다. 못받는 틈이 존재하게 됨.)</span><br></pre></td></tr></table></figure>
+<h1 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">멀티스레드 프로그래밍이란 간단히 말해서 동일한 애플리케이션 안에서 두 갱 ㅣ상의 기능이 병렬적으로 수행될수 있도록 소프트웨어를 작성한다.</span><br><span class="line"></span><br><span class="line">주의 깊게 작성한 멀티스레드 프로그램은 일반적으로 수행 시간, 사용자 응답성, 프로그램 구조 중 적어도 하나 이상은 싱글스레드 프로그램보다 우수하다.</span><br><span class="line"></span><br><span class="line">운영체제의 규칙에 대해서 정확히 파악하고 있어야 한다.</span><br></pre></td></tr></table></figure>
+<h2 id="멀티스레드-프로그램을-사용하는-이유"><a href="#멀티스레드-프로그램을-사용하는-이유" class="headerlink" title="멀티스레드 프로그램을 사용하는 이유"></a>멀티스레드 프로그램을 사용하는 이유</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">병렬화의 증가, 빠른 처리, 향상된 안정성, 사용자에 대한 향상된 응답성, CPU 사용률의 증가</span><br></pre></td></tr></table></figure>
+<h2 id="스레드를-사용하면-안되는-경우"><a href="#스레드를-사용하면-안되는-경우" class="headerlink" title="스레드를 사용하면 안되는 경우"></a>스레드를 사용하면 안되는 경우</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DeadLock, Stravation(기아현상)을 발생시킬수 있는 요인이 있다.</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>확실한 이유를 가지고 있지 않은 경우에는 스레드를 사용하면 안된다.( 두 개의 스레드가 명확하게 독립적이지 않은 경우에는 하나의 작업을 둘로 나누면 안된다.)</p>
+</li>
+<li><p>스레드에 의한 작업의 빈도를 고려할 때, 운영체제가 스레드 스케쥴링을 하고 스레드를 다루는 데 발생하는 부하(Overhead)가 실제 스레드에 의해 수행된느 작업량보다 클 경우에는 스레드를 사용하면 안된다.</p>
+</li>
+</ul>
+<h2 id="스케쥴러"><a href="#스케쥴러" class="headerlink" title="스케쥴러"></a>스케쥴러</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Windows는 모든 스레드를 Round Robin 형태로 스케쥴링한다.</span><br><span class="line"></span><br><span class="line">현재 스레드를 수행을 중지시키고 새로운 스레드를 수행시키기 위해서 운영체제는 문맥 교환을 한다.</span><br><span class="line"></span><br><span class="line">각각 의 스레드 안에는 TCB(스레드 문맥 블록 : Thread Context Block)이 있고  이 안에는 PCB(Process Context Block)의 포인터가 있다. </span><br><span class="line"></span><br><span class="line">문맥 블록은 기본적으로 스레드가 지난번에 CPU에서 동작했을때의 레지스터 값의 스냅샷을 나타낸다.</span><br></pre></td></tr></table></figure>
+<p><img src="P0.png" alt="스레드 상태 전이"></p>
+<h3 id="문맥교환"><a href="#문맥교환" class="headerlink" title="문맥교환"></a>문맥교환</h3><ol>
+<li><p>스케쥴러가 같은 프로세스 안에서 동작하는 두 개의 스레드의 문맥 교환을 하는 경우.</p>
+</li>
+<li><p>스케쥴러가 다른 프로세스에서 동작하는 두 개의 스레드의 문맥 교환을 하는 경우. 같은 프로세스 안에서 문맥교환 하는것보다 큰 비용이 소모된다.</p>
+</li>
+</ol>
+<h3 id="스레드-상태"><a href="#스레드-상태" class="headerlink" title="스레드 상태"></a>스레드 상태</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">시스템의 모든 스레드는 기본적으로 세 가지 상태 중 한가지에 속한다.</span><br></pre></td></tr></table></figure>
+<h4 id="Running"><a href="#Running" class="headerlink" title="Running"></a>Running</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">수행 중인 스레드는 컴퓨터의 CPU에서 현재 스레드의 코드가 수행되고 있는 스레드를 의미한다.</span><br></pre></td></tr></table></figure>
+<h4 id="Ready"><a href="#Ready" class="headerlink" title="Ready"></a>Ready</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">현재 수행 중인 스레드는 아니지만 운영체제가 CPU에게 시간을 할당하면 바로 수행 할수 있는 스레드를 준비상태에 있다고 한다.</span><br></pre></td></tr></table></figure>
+<h4 id="Block-Suspended"><a href="#Block-Suspended" class="headerlink" title="Block / Suspended"></a>Block / Suspended</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">세마포어 같은 커널 객체가 Signaled 되거나 I/O 동작이 끝나기를 대기하는 스레드를 블록된 상태라고 한다.Sleep이나 SuspendThread 같은 시스템 콜을 사용하게 되면 OS에 의해 잠깐동안 보류될수 있다.</span><br></pre></td></tr></table></figure>
+<h2 id="최소-단위-오퍼레이션-Atomic-Operation"><a href="#최소-단위-오퍼레이션-Atomic-Operation" class="headerlink" title="최소 단위 오퍼레이션 (Atomic Operation)"></a>최소 단위 오퍼레이션 (Atomic Operation)</h2><ul>
+<li>기본적으로는 에섬코드 1줄이라고 봐도 무방하다. (완벽하진 않음.)</li>
+<li>스레드 디버깅 = 어셈블리 코드를 보고 Sync가 깨질만한 요소를 찾아야 된다. </li>
+<li>최대한 락을 안걸고 쓰기 위해서는 디스어셈블리를 봐야됨.</li>
+</ul>
+<h2 id="상호-배제"><a href="#상호-배제" class="headerlink" title="상호 배제"></a>상호 배제</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">최소 수행 단위를 넘어서는 길이의 동작을 인터럽트 되지 않고 수행해야 할 필요가 발생한다.</span><br><span class="line">이럴경우 데이터 구조나 코드 영역에 대한 상호 배타적인 접근만을 허용하기 위해서 동기화 도구를 사용하게 되는데 이걸 상호 배제라고 함. (뮤텍스, 세마포어 동기화 객체를 이용해서 락을 건다.)</span><br></pre></td></tr></table></figure>
+<h2 id="교착-상태"><a href="#교착-상태" class="headerlink" title="교착 상태"></a>교착 상태</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DeadLock 상태. 서로 자기 자원을 가지고 있고 상대방 스레드에 있는 자원을 서로 요구하면 무한적 락이 걸린다.</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p>다수 자원에 대한 소유와 대기(Hold And Wait For Multiple Resource)</p>
+<ul>
+<li>적어도 하나의 스레드는 자원에 대한 소유권을 갖고 있어야 하고, 다른 스레드에 의해 소유된 공유 자원을 획득하려고 해야 함.</li>
+</ul>
+</li>
+<li><p>상호 배체(Mutual Exclusion)</p>
+<ul>
+<li>자원의 소유권은 반드시 한번에 하나의 스레드에게 만 허용되어야 함.</li>
+</ul>
+</li>
+<li><p>무선점(No Preemption)</p>
+<ul>
+<li>운영체제가 다른 스레드에게 공유 자원에 대한 소유권을 주기 위해서 이미 공유 자원을 소유하고 있는 스레드의 소유권을 뺏을수 없다.</li>
+</ul>
+</li>
+<li><p>순환 대기(Circular Wait)</p>
+<ul>
+<li>둘 이상의 스레드가 순환 대기를 발생하는 형태로 자원에 대해 대기하고 있어야 한다.</li>
+</ul>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">위의 4가지 조건이 동시에 모두 발생하지 않는다면, 교착상태는 발생하지 않는다.</span><br></pre></td></tr></table></figure>
+<h2 id="스레드-역학"><a href="#스레드-역학" class="headerlink" title="스레드 역학"></a>스레드 역학</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">생성 - CreateThread(스레드 핸들 리턴)</span><br><span class="line">임의적인 쓰레드 스택 크기도 지정가능 (기본 1메가)</span><br><span class="line">스레드 안은 무한 루프를 통해 중지하지 않고 계속 돌리게한다.</span><br><span class="line">함수 포인터를 써서 스레드를 지정.</span><br><span class="line">스레드 종료 코드 가 0 -&gt; 우리가 메인에 return 0 한것과 같음.</span><br><span class="line"></span><br><span class="line">스레드 참조 카운터가 0이 되면 실제로 스레드가 파괴된다.</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CreateThread(<span class="literal">NULL</span>, <span class="number">0</span>, 스레드 함수 주소, 함수 파라메터, 플래그, 스레드 ID(Out) )</span><br><span class="line"></span><br><span class="line">GetCurrentHandle() <span class="comment">// 가상 핸들을 리턴한다. (CloseHandled 되지 않으며 참조 카운트도 증가하지 않음.)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 스레드에서 제일 좋은건 리턴시키는것. ExitThread -&gt; Return과 같음. , TerminateThread -&gt; 강제중단 , 메모리 해제도 안됨.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 우리는 _beginthreadex, _endthreadex만 사용할것임. process.h를 헤더에 추가.</span></span><br></pre></td></tr></table></figure>
+<h2 id="스레드-동기화-방법"><a href="#스레드-동기화-방법" class="headerlink" title="스레드 동기화 방법"></a>스레드 동기화 방법</h2><h3 id="Interlocked-계열"><a href="#Interlocked-계열" class="headerlink" title="Interlocked 계열"></a>Interlocked 계열</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">보통 Lock이라고 하지 않음. 특정 변수에 대한 안전한 동기화</span><br><span class="line">인터록 계열은 동기화 객체를 사용하지 않고, 안전하게 처리해준다. ( 함수는 아니다. 바로 어셈블 코드로 넘어간다.)</span><br><span class="line"></span><br><span class="line">뮤텍스, 세마포어, 이벤트와 동일하게 Enter하고 Leave하는 방식.</span><br><span class="line">인터록 함수는 대상 변수에 대해 동일하게 인터록를 써줘야 한다.</span><br></pre></td></tr></table></figure>
+<h2 id="Critical-Section"><a href="#Critical-Section" class="headerlink" title="Critical Section"></a>Critical Section</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">상호 배제를 구현하기 위해서 임계영역을 사용한다. 임계영역은 한번에 하나의 스레드만이 들어갈수 있다.</span><br><span class="line"></span><br><span class="line">유저 객체이기 때문에, 커널 객체인 뮤텍스, 세마포어, 이벤트 보단 빠르다.</span><br><span class="line">객체 자체는 커널 객체는 아니지만, 동기화 행위는 유저 모드에서 할수 없다.</span><br><span class="line"></span><br><span class="line">다른 스레드가 임계영역에 들어오지 않았다면, 다른 동기화모드보다 효율적이다.</span><br><span class="line"> = 만약 이 상황이 아니라면 인터록모드로 처리한다.</span><br><span class="line"></span><br><span class="line"> 같은 스레드에 의해 재귀적으로 계속 획득할수 있다. Enter, Leave 카운팅은 정확해야 된다.</span><br><span class="line"></span><br><span class="line"> 동기화가 들어가지 않는다면 카운팅밖에 없기 때문에, 거의 속도에 영향을 주지 않는다.</span><br><span class="line"> = 2개 이상의 스레드가 대기중이라면 누가 먼저 처리될지는 모른다.</span><br><span class="line"></span><br><span class="line">락카운트, 해제 카운트, 락 세마포어, 점유중인 스레드 스핀 카운트로 구성되어 있다.</span><br></pre></td></tr></table></figure>
+<h3 id="Spin-Lock"><a href="#Spin-Lock" class="headerlink" title="Spin Lock"></a>Spin Lock</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">일반적으로 Lock 거는 곳에서 CPU 자원을 소비하면서 무한 루프를 돌려 락을 요청한다.</span><br><span class="line">    =&gt; 커널모드로 전환, 대기 스레드에 넣고 다시 깨어나는 Overhead의 낭비를 줄이기 위해서다. (그 만큼 CPU 사용량이 증가한다.) Lock Free 구조와 비슷하다.</span><br></pre></td></tr></table></figure>
+<h3 id="WaitForSingleObject-WaitForMultipleObject"><a href="#WaitForSingleObject-WaitForMultipleObject" class="headerlink" title="WaitForSingleObject, WaitForMultipleObject"></a>WaitForSingleObject, WaitForMultipleObject</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">커널 동기화 객체들은 이 함수를 통해서 락을 건다. 모든 커널 객체는 Signaled, NonSignaled 상태로 나뉘어진다.</span><br><span class="line"></span><br><span class="line">Signaled 상태라면 , 이함수를 통해 깨어난다.</span><br><span class="line">NonSignaled 상태라면, 이 함수를 통해 잠든다.</span><br><span class="line"></span><br><span class="line">프로세스 객체 Signaled = 프로그램이 종료되었을때</span><br><span class="line">쓰레드 객체 Signaled = 스레드가 종료되었을때</span><br><span class="line">!!이벤트 객체 Signaled = SetEvent와 PulseEvent 함수에 따라 조절된다.</span><br><span class="line">뮤텍스 객체 Signaled = 뮤텍스 객체가 어떤 스레드도 가지고 있지 않을때 (스레드는 ReleaseMutex로 소유포기가능)</span><br><span class="line">세마포어 - 뮤텍스와 비슷하지만 카운팅을 한다. =&gt; 몇명이 소유할수 있는가를 컨트롤한다.</span><br></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">DWORD <span class="title">WaitForSingleObject</span><span class="params">(HANDLE, 대기시간)</span><span class="comment">// =&gt; 우리는 이벤트로 많이 쓸것. 리턴이 WAIT_OBJECT_0 이면 정상</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">DWORD <span class="title">WaitForMultipleObject</span><span class="params">(핸들 숫자, 핸들 배열 포인터, 전부 대기 Flag, 대기 시간)</span></span>;</span><br><span class="line"><span class="comment">// 배열의 인덱스가 앞에 있는 것 부터 순차적으로 확인한다. 즉 Signaled 빈도가 높은 스레드는 가장 뒤에 넣어준다.</span></span><br><span class="line"><span class="comment">// 안그러면 뒷 스레드가 처리되지 않거나 무시된다.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Return WAIT_OBJECT_0 ~ WAIT_OBJECT_0 + nCount - 1;</span></span><br></pre></td></tr></table></figure>
+<h3 id="Mutex"><a href="#Mutex" class="headerlink" title="Mutex"></a>Mutex</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">가장 일반적으로 사용되는 동기화 커널 객체</span><br><span class="line">임계 영역과 달리 서로 다른 프로세스에 속한 세르드가 동일 자원에 대해서 접근하는 경우에도 동기화하는데 사용할수 있다.</span><br></pre></td></tr></table></figure>
+<h4 id="동작원리-1"><a href="#동작원리-1" class="headerlink" title="동작원리"></a>동작원리</h4><ol>
+<li><p>생성</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HANDLE <span class="title">CreateMutex</span><span class="params">(LPSECURITY_ATTRIBUTES, BOOL, LPCSTR)</span></span>; <span class="comment">// 보안속성, 해당 함수 호출 스레드도 포함여부, 뮤텍스 객체 이름을 나타내는 문자열 </span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 성공 : 뮤텍스 핸들</span></span><br><span class="line"><span class="comment">// 실패 : NULL</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>이미 생성된 뮤텍스의 핸들 확보 또는 뮤텍스가 존재하지 않은 경우 뮤텍스를 생성하지 않기를 원할때(검색)</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HANDLE <span class="title">OpenMutex</span><span class="params">(DWORD dwDesiredAccess, BOOL InheritHandle, LPCTSTR lpName)</span></span>;</span><br><span class="line"><span class="comment">// lpName이름의 뮤텍스를 가지려는 스레드의 접근 형태를 나타내는 비트 플래그</span></span><br><span class="line"><span class="comment">// 이 함수를 호출하는 프로세스가 CreateProcess 함수를 사용한 경우 핸들이 새로 생성된 프로세스에 상속 가능한지 나타냄. </span></span><br><span class="line"><span class="comment">// 열려고 하는 뮤텍스의 이름을 나타냄</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>뮤텍스 해제</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">ReleaseMutex</span><span class="params">(HANDLE hMutex)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="Event"><a href="#Event" class="headerlink" title="Event"></a>Event</h3><pre><code>스레드를 외부에서 제어(자동모드와 수동모드가 있다.)
+Signaled 신호를 없앨때 이를 자동으로 할지 수동으로 할지 정하는것.
+자동일 경우 작업을 끝낸뒤에 없애버린다. 또한 이경우 SetEvent, ResetEvent를 쓰지 않는게 좋다.
+수동일 경우 SetEvent, ResetEvent를 무조껀 써야 한다.
+-&gt; 우리는 대부분 메뉴얼모드를 종료용으로 쓸것이다.
+</code></pre><h4 id="동작원리-2"><a href="#동작원리-2" class="headerlink" title="동작원리"></a>동작원리</h4><ol>
+<li><p>생성</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HANDLE <span class="title">CreateEvent</span><span class="params">(보안기술, 메뉴얼리셋, 초기상태, 이름)</span></span>;</span><br><span class="line"><span class="comment">// 2번재 인자 : TRUE 수동리셋 이벤트, FALSE: 자동리셋 이벤트</span></span><br><span class="line"><span class="comment">// 3번째 인자 : 이벤트 객체의 초기 상태를 지정하는 플래그</span></span><br><span class="line"><span class="comment">// 4번째 인자 : 이벤트 객체이름</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>검색</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">HANDLE <span class="title">OpenEvent</span><span class="params">(DWORD dwDesiredAccess, BOOL InHeritHandle, LPCSTR lpName)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>이벤트 객체를 Signaled화</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">SetEvent</span><span class="params">(HANDLE hEvent)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>이벤트 객체를 NonSingaled</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">ResetEvent</span><span class="params">(HANDLE hEvent)</span></span>;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>이벤트 객체가 대기중이라면 시그널상태로 바꿔준다.\</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">BOOL <span class="title">PulseEvent</span><span class="params">(HANDLE hEvent)</span></span>;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/03/19/GameServer1/,Mute의 개발 블로그,Game Server Programming 2,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/03/19/GameServer0/" title="Game Server Programming 1">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify: || false, 
+  verify:|| false, 
+  app_id:'',
+  app_key:'',
+  placeholder:'',
+  path: window.location.pathname,
+  avatar:''
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>

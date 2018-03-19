@@ -1,0 +1,433 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Operation System Content · Mute의 개발 블로그</title><meta name="description" content="Operation System Content
+Thread / Process
+Process
+Thread
+
+
+PCB
+프로세스와 쓰레드 상태 전이도
+프로세스 상태 전이도
+스레드의 상태 전이도
+
+
+Logical Address, Physical Address
+Logical Ad"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul><div class="footer"><a target="_blank" href="/"><span>Theme by </span></a><a href="https://www.caicai.me"> CaiCai </a><span>&</span><a href="https://github.com/Ben02/hexo-theme-Anatole"> Ben</a><div class="by_farbox"><a href="https://hexo.io/zh-cn/" target="_blank">Proudly published with Hexo&#65281;</a></div></div></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>Operation System Content</a></h3></div><div class="post-content"><!-- TOC -->
+<ul>
+<li><a href="#operation-system-content">Operation System Content</a></li>
+<li><a href="#thread--process">Thread / Process</a><ul>
+<li><a href="#process">Process</a></li>
+<li><a href="#thread">Thread</a></li>
+</ul>
+</li>
+<li><a href="#pcb">PCB</a></li>
+<li><a href="#프로세스와-쓰레드-상태-전이도">프로세스와 쓰레드 상태 전이도</a><ul>
+<li><a href="#프로세스-상태-전이도">프로세스 상태 전이도</a></li>
+<li><a href="#스레드의-상태-전이도">스레드의 상태 전이도</a></li>
+</ul>
+</li>
+<li><a href="#logical-address-physical-address">Logical Address, Physical Address</a><ul>
+<li><a href="#logical-address논리적-주소">Logical Address(논리적 주소)</a></li>
+<li><a href="#physical-address물리-주소">Physical Address(물리 주소)</a></li>
+</ul>
+</li>
+<li><a href="#ipcinter-process-communication-mechanism">IPC(Inter-Process Communication) Mechanism</a><ul>
+<li><a href="#배경">배경</a></li>
+<li><a href="#목적">목적</a></li>
+<li><a href="#ipc-기법의-종류">IPC 기법의 종류</a></li>
+</ul>
+</li>
+<li><a href="#interrupt">Interrupt</a><ul>
+<li><a href="#정의">정의</a></li>
+<li><a href="#인터럽트-종류">인터럽트 종류</a></li>
+<li><a href="#isrinterrupt-service-routine">ISR(Interrupt Service Routine)</a></li>
+<li><a href="#인터럽트-발생을-확인하는-방법">인터럽트 발생을 확인하는 방법</a></li>
+</ul>
+</li>
+<li><a href="#top-half-bottom-half">Top Half, Bottom Half</a><ul>
+<li><a href="#배경-1">배경</a></li>
+<li><a href="#목적-1">목적</a></li>
+<li><a href="#top-half">Top Half</a></li>
+<li><a href="#bottom-half">Bottom Half</a></li>
+<li><a href="#과정">과정</a></li>
+</ul>
+</li>
+<li><a href="#hard-link-symbolic-link">Hard Link, Symbolic Link</a><ul>
+<li><a href="#hard-link">Hard Link</a></li>
+<li><a href="#symbolic-link">Symbolic Link</a></li>
+<li><a href="#inode">iNode</a></li>
+</ul>
+</li>
+<li><a href="#race-condition">Race Condition</a><ul>
+<li><a href="#정의-1">정의</a></li>
+<li><a href="#문제의-해결-방안">문제의 해결 방안</a></li>
+<li><a href="#임계-영역">임계 영역</a></li>
+</ul>
+</li>
+<li><a href="#deadlock">Deadlock</a><ul>
+<li><a href="#정의-2">정의</a></li>
+<li><a href="#deadlock의-조건">DeadLock의 조건</a></li>
+<li><a href="#deadlock의-해결예방">DeadLock의 해결(예방)</a></li>
+</ul>
+</li>
+<li><a href="#context-switching">Context Switching</a><ul>
+<li><a href="#정의-3">정의</a></li>
+<li><a href="#context-switching-순서">Context Switching 순서</a></li>
+<li><a href="#context-switching-of-process--thread">Context Switching of Process &amp; Thread</a></li>
+</ul>
+</li>
+<li><a href="#preemptive--non-preemptive-scheduling">Preemptive / Non-Preemptive Scheduling</a><ul>
+<li><a href="#preemptive선점-스케쥴링">Preemptive(선점) 스케쥴링</a></li>
+<li><a href="#non-preemptive비선점-스케쥴링">Non-Preemptive(비선점) 스케쥴링</a></li>
+</ul>
+</li>
+<li><a href="#virtual-memory">Virtual Memory</a><ul>
+<li><a href="#목적-2">목적</a></li>
+<li><a href="#가상-메모리-기법">가상 메모리 기법</a></li>
+<li><a href="#mmumemory-management-unit">MMU(Memory Management Unit)</a></li>
+</ul>
+</li>
+<li><a href="#priority-queue">Priority Queue</a></li>
+<li><a href="#difference-between-system-call-and-interrupt">Difference between System Call and Interrupt</a><ul>
+<li><a href="#system-call">System Call</a></li>
+<li><a href="#interrupt-1">Interrupt</a></li>
+</ul>
+</li>
+<li><a href="#locality-of-reference참조의-지역성">Locality of Reference(참조의 지역성)</a><ul>
+<li><a href="#지역성의-원리">지역성의 원리</a></li>
+</ul>
+</li>
+<li><a href="#cache-memory">Cache Memory</a><ul>
+<li><a href="#cache-miss">Cache Miss</a></li>
+</ul>
+</li>
+<li><a href="#atomic-operation">Atomic Operation</a></li>
+<li><a href="#paging-demand-paging-technique">Paging, Demand Paging Technique</a><ul>
+<li><a href="#페이징-기법">페이징 기법</a></li>
+<li><a href="#page-fault">Page Fault</a></li>
+<li><a href="#페이지-교체page-replacement-정책">페이지 교체(Page Replacement) 정책</a></li>
+<li><a href="#thrashing쓰레싱">Thrashing(쓰레싱)</a></li>
+</ul>
+</li>
+<li><a href="#segment-technique">Segment Technique</a><ul>
+<li><a href="#정의-4">정의</a></li>
+</ul>
+</li>
+<li><a href="#pipeline-processing-방식">Pipeline Processing 방식</a><ul>
+<li><a href="#pipeline">Pipeline</a></li>
+<li><a href="#pipeline-목적">Pipeline 목적</a></li>
+<li><a href="#파이프라인에서-중요한-점">파이프라인에서 중요한 점</a></li>
+</ul>
+</li>
+<li><a href="#주-기억-장치ramrom---cache-간-데이터-전송">주 기억 장치(RAM/ROM) <-> Cache 간 데이터 전송</-></a><ul>
+<li><a href="#mapping-process">Mapping Process</a></li>
+<li><a href="#cache-arragement">Cache Arragement</a></li>
+</ul>
+</li>
+<li><a href="#risc-cisc">RISC, CISC</a><ul>
+<li><a href="#riscreduced-instruction-set-computer">RISC(Reduced Instruction Set Computer)</a></li>
+<li><a href="#cisccomplexed-instruction-set-computer">CISC(Complexed Instruction Set Computer)</a></li>
+</ul>
+</li>
+<li><a href="#garbage-collection">Garbage Collection</a><ul>
+<li><a href="#정의-5">정의</a></li>
+<li><a href="#목적-3">목적</a></li>
+<li><a href="#gc-algorithm">GC Algorithm</a></li>
+</ul>
+</li>
+<li><a href="#rpc-rmi">RPC, RMI</a><ul>
+<li><a href="#rpcremote-procedure-call">RPC(Remote Procedure Call)</a></li>
+<li><a href="#rmiremote-method-invocation">RMI(Remote Method Invocation)</a></li>
+</ul>
+</li>
+</ul>
+<!-- /TOC -->
+<h1 id="Thread-Process"><a href="#Thread-Process" class="headerlink" title="Thread / Process"></a>Thread / Process</h1><h2 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h2><pre><code>A Program in Execution(실행중인 프로그램)
+하나의 프로세스는 적어도 하나의 스레드를 포함
+Code, Data, File, Register, Stack, Thread를 포함하는 개념
+</code></pre><h2 id="Thread"><a href="#Thread" class="headerlink" title="Thread"></a>Thread</h2><pre><code>프로세스의 실행 단위(흐름)
+Code, Data, File은 스레드 간 공유되는 자원이며, 프로세스에서 확보한 공간이다.
+Register, Stack은 스레드 간 독립적인 자원이며, 프로세스에서 확보해놓은 메모리 공간 내에서 스레드마다 별도의 공간을 가진다.
+</code></pre><h1 id="PCB"><a href="#PCB" class="headerlink" title="PCB"></a>PCB</h1><pre><code>Process Control Block 프로세스 제어 블록
+프로세스 생성 시 마다 고유의 PCB를 생성한다.
+프로세스에 대한 중요 정보를 저장하고, 불러오는 작업을 하기 위해 이용된다.
+프로세스 고유 식별자 포인터, 프로세스의 현재 상태, 스케쥴링 우선순위, CPU 레지스터 정보, 주기억장치 관리 정보 등을 포함하고 있다.
+(PID, Program Counter, File, Pointer, Register, etc ...)
+</code></pre><h1 id="프로세스와-쓰레드-상태-전이도"><a href="#프로세스와-쓰레드-상태-전이도" class="headerlink" title="프로세스와 쓰레드 상태 전이도"></a>프로세스와 쓰레드 상태 전이도</h1><h2 id="프로세스-상태-전이도"><a href="#프로세스-상태-전이도" class="headerlink" title="프로세스 상태 전이도"></a>프로세스 상태 전이도</h2><ul>
+<li><p>Running </p>
+<p>​      </p>
+<pre><code>Process가 CPU에 의해 수행되고 있는 상태.
+TimeOut에 의해 Ready Queue로 이동될수 있음.
+IO 등에 의해 Block 될수 있다.
+</code></pre></li>
+<li><p>Ready   </p>
+<pre><code>프로세스가 실행중이지만, CPU에 의해 스케쥴링이 되지않아, 실질적으로 수행이 되지 않은 상태. 
+Dispatch되면 Running 상태로 전이된다.
+</code></pre></li>
+<li><p>Block</p>
+<pre><code>Running 상태의 프로세스가 인터럽트 등에 의해 Block 되었을때의 상태. 
+Block이 끝나면 스케쥴링을 위해 Ready Queue로 이동한다.
+</code></pre></li>
+</ul>
+<h2 id="스레드의-상태-전이도"><a href="#스레드의-상태-전이도" class="headerlink" title="스레드의 상태 전이도"></a>스레드의 상태 전이도</h2><ul>
+<li><p>Runnable</p>
+<pre><code>스케쥴링 Timeout(), Notify(), I/O Finish 등 다시 실행시킬수 있게 된 상태
+</code></pre></li>
+<li><p>Not Runnable</p>
+<pre><code>Suspend(), Wait(), Sleep() 등 I/O Block 등에 의해 실행 불가능하게 된 상태
+</code></pre></li>
+<li><p>Dead</p>
+<pre><code>실행중인 쓰레드가 Stop 혹은 Exit되었을때.
+실행 불가능한 스레드가 Stop 되었을때.
+</code></pre></li>
+</ul>
+<h1 id="Logical-Address-Physical-Address"><a href="#Logical-Address-Physical-Address" class="headerlink" title="Logical Address, Physical Address"></a>Logical Address, Physical Address</h1><h2 id="Logical-Address-논리적-주소"><a href="#Logical-Address-논리적-주소" class="headerlink" title="Logical Address(논리적 주소)"></a>Logical Address(논리적 주소)</h2><pre><code>호스트나 라우터가 사용하는 논리적 주소
+네트워크에서는 IP주소를 의미, 로컬에서는 CPU가 메모리에 접근하기 위해 사용하는 Virtual Address로 볼수 있다. 
+
+ex) ARP(Address Resolution Protocal)
+</code></pre><h2 id="Physical-Address-물리-주소"><a href="#Physical-Address-물리-주소" class="headerlink" title="Physical Address(물리 주소)"></a>Physical Address(물리 주소)</h2><pre><code>로컬 주소라고도 하며, 로컬 네트워크에서만 유효한 주소
+일반적으로 하드웨어로 구현하며, 호스트나 라우터 내에 포함되어 있음.
+
+ex) TLB(Translation Lookaside Block)
+      - 가상 주소에서 물리주소의 변환의 속도를 위한 캐싱
+      - 최근에 참조한 주소 변환 정보를 캐싱해 주었다가 재사용
+</code></pre><h1 id="IPC-Inter-Process-Communication-Mechanism"><a href="#IPC-Inter-Process-Communication-Mechanism" class="headerlink" title="IPC(Inter-Process Communication) Mechanism"></a>IPC(Inter-Process Communication) Mechanism</h1><h2 id="배경"><a href="#배경" class="headerlink" title="배경"></a>배경</h2><pre><code>프로세스 간에는 가상 메모리 공간을 공유하지 않는다. (기본적으로 프로세스 간 커뮤니케이션은 불가능)
+</code></pre><h2 id="목적"><a href="#목적" class="headerlink" title="목적"></a>목적</h2><pre><code>프로세스 간 통신을 위해서 존재
+</code></pre><h2 id="IPC-기법의-종류"><a href="#IPC-기법의-종류" class="headerlink" title="IPC 기법의 종류"></a>IPC 기법의 종류</h2><pre><code>+ 공유 메모리 : 메모리 자체를 공유
++ File, Socket : 하나의 파일을 여러 프로세스가 공유하거나, Socket을 이용해서 메세지를 넘긴다.
++ Signal : 한 프로세스가 다른 프로세스에게 Signal을 줄수 있다.
++ Message Qeueing : 한 프로세스가 다른 프로세스에게 메세지 큐를 이용해 전달한다.
++ Pipe : 파이프를 이용해 메시지를 주고 받을수 있다.
++ Semaphore : 동기화 기법과 겸용해서 IPC에서 1:N 관계에서 사용한다.
++ Message Passing : 병렬 컴퓨팅을 이용하기 위한 표준 규격
++ Memory Mapping File : 가상 메모리처럼 프로세스 주소 공간을 예약하고, 예약한 영역에 물리 저장소를 커밋하는 기능을 제공한다.
+</code></pre><h1 id="Interrupt"><a href="#Interrupt" class="headerlink" title="Interrupt"></a>Interrupt</h1><h1 id="Interrupt-1"><a href="#Interrupt-1" class="headerlink" title="Interrupt"></a>Interrupt</h1><h2 id="정의"><a href="#정의" class="headerlink" title="정의"></a>정의</h2><pre><code>A Signal to the Processor or An Instruction in Software.
+CPU 외부의 HW or SW에 의해 정상적인 실행 흐름을 변경하여, 시급한 작업을 먼저 수행한뒤, 실행중인 프로세스로 복귀하는 방법
+</code></pre><ul>
+<li>비동기적인 주변장치의 서비스 요청 이벤트 처리</li>
+<li>인터럽트 발생 시 복귀 주소를 저장해 두었다가, ISR(Interrupt Service Routine) 마지막에 복귀 명령에 이용한다.</li>
+<li>운영체제는 인터럽트 의존적이다.</li>
+</ul>
+<h2 id="인터럽트-종류"><a href="#인터럽트-종류" class="headerlink" title="인터럽트 종류"></a>인터럽트 종류</h2><pre><code>+ Hardware Interrupt(External) : 입출력 등 외부 장치에서 발생하는 인터럽트
++ Software Interrupt(Internel과 유사) : 잘못된 명령이나 데이터 사용에 의해 발생하는 인터럽트 = Trap
+</code></pre><p><em>실질적으로 Hardware Interrupt만 존재한다. Trigger가 SW일 경우 Software Interrupt라고 부르기만 할뿐</em><br><em>실질적으로 Hardware Interrupt만 존재한다. Trigger가 SW일 경우 Software Interrupt라고 부르기만 할뿐</em></p>
+<h2 id="ISR-Interrupt-Service-Routine"><a href="#ISR-Interrupt-Service-Routine" class="headerlink" title="ISR(Interrupt Service Routine)"></a>ISR(Interrupt Service Routine)</h2><pre><code>인터럽트가 발생하면, 유저모드에서 커널 모드로 들어가서 인터럽트를 처리한다.
+</code></pre><ul>
+<li>인터럽트가 발생하면 현재 프로그램 상태를 PCB에 저장</li>
+<li>Interrupt Vector(인터럽트에 해당하는 ISR 실행 정보를 담는 벡터)를 탐색</li>
+<li>인터럽트 처리 : 요청 장비를 식별, 실질적 인터럽트 처리</li>
+<li>상태를 복구하고, PC에 저장된 프로그램 상태를 통해 실행 개재</li>
+</ul>
+<h2 id="인터럽트-발생을-확인하는-방법"><a href="#인터럽트-발생을-확인하는-방법" class="headerlink" title="인터럽트 발생을 확인하는 방법"></a>인터럽트 발생을 확인하는 방법</h2><ul>
+<li>Polling : 하나씩 인터럽트가 걸린 프로세스를 확인</li>
+<li>Vector Interrupt System : 인터럽트 요청을 한 프로세스를 확인할수 있다.</li>
+<li>Daisy-Chain : 하드웨어적 방법으로 확인한다.</li>
+</ul>
+<h1 id="Top-Half-Bottom-Half"><a href="#Top-Half-Bottom-Half" class="headerlink" title="Top Half, Bottom Half"></a>Top Half, Bottom Half</h1><h2 id="배경-1"><a href="#배경-1" class="headerlink" title="배경"></a>배경</h2><pre><code>인터럽트가 발생했을 시, 데이터를 가져오고 수행하는 단계에서 처리 과정의 시간이 길어질 경우 오랫동안 아무 작업을 못한다는 단점이 있다.
+</code></pre><h2 id="목적-1"><a href="#목적-1" class="headerlink" title="목적"></a>목적</h2><pre><code>인터럽트가 발생했을 때 데이터를 가져오는 빠른 동작을 수행하고, 데이터를 처리하는 동작은 그 이후에 수행한다.
+</code></pre><h2 id="Top-Half"><a href="#Top-Half" class="headerlink" title="Top Half"></a>Top Half</h2><pre><code>데이터를 가져오는 동작 -&gt; 비교적 빠른 동작
+</code></pre><h2 id="Bottom-Half"><a href="#Bottom-Half" class="headerlink" title="Bottom Half"></a>Bottom Half</h2><pre><code>가져온 데이터를 처리하는 동작 -&gt; 비교적 느린 동작
+</code></pre><h2 id="과정"><a href="#과정" class="headerlink" title="과정"></a>과정</h2><pre><code>인터럽트 Disable --&gt; Top-Half 처리 --&gt; 인터럽트 Enable --&gt; Bottom-half 처리
+</code></pre><h1 id="Hard-Link-Symbolic-Link"><a href="#Hard-Link-Symbolic-Link" class="headerlink" title="Hard Link, Symbolic Link"></a>Hard Link, Symbolic Link</h1><h2 id="Hard-Link"><a href="#Hard-Link" class="headerlink" title="Hard Link"></a>Hard Link</h2><pre><code>Original File Data를 가르키는 INode를 직접 가르키고 있다.(원본과 동일한 inode)
+
+Hard Link된 파일을 수정하면 원본도 같이 수정된다.
+</code></pre><h2 id="Symbolic-Link"><a href="#Symbolic-Link" class="headerlink" title="Symbolic Link"></a>Symbolic Link</h2><pre><code>원본 파일 자체에 Link를 연결한 방식
+
+바로가기와 유사한 개념, 심볼릭 링크 파일을 수정해도 원본은 변하지 않는다.
+</code></pre><h2 id="iNode"><a href="#iNode" class="headerlink" title="iNode"></a>iNode</h2><pre><code>커널 내에 현재 사용중인 파일의 대한 자료구조
+해당 파일의 대한 대부분의 정보를 가진다. : 파일의 소유권/권한, 디스크 내의 물리적 주소, 파일의 링크 수/형태/크기, 파일 관련 시간, inode 수정 시간
+사람은 파일을 이름으로 구분하고 , 컴퓨터는 iNumber로 구분한다.
+</code></pre><h1 id="Race-Condition"><a href="#Race-Condition" class="headerlink" title="Race Condition"></a>Race Condition</h1><h2 id="정의-1"><a href="#정의-1" class="headerlink" title="정의"></a>정의</h2><pre><code>스레드 간 데이터를 공유하면서 발생하는 논리적 오류
+</code></pre><h2 id="문제의-해결-방안"><a href="#문제의-해결-방안" class="headerlink" title="문제의 해결 방안"></a>문제의 해결 방안</h2><pre><code>데이터에 접근하는 연산을 Atomic Operation으로 처리한다.
+Critical Section으로 설정함으로써 동기화 한다.
+</code></pre><h2 id="임계-영역"><a href="#임계-영역" class="headerlink" title="임계 영역"></a>임계 영역</h2><ol>
+<li>스레드들이 하나의 자원에 접근할 때 순서를 만들어 실행해 준다.</li>
+<li>공유 자원의 독립적인 처리를 보장한다.</li>
+<li><p>임계 구역의 관리 방법(Lock)과 동기화 객체</p>
+<pre><code>- Mutex(Mutual Exclusion 상호배제) : 제어되는 섹션에 하나의 스레드만을 허용
+- Semaphore : 공유 리소스에 접근할수 있는 최대 허용치만큼 동시에 접근할수 있도록 허용 (열쇠가 여러개 있음.)
+- Event : 쓰레드의 작업 순서나 시기를 결정한다.
+</code></pre></li>
+</ol>
+<h1 id="Deadlock"><a href="#Deadlock" class="headerlink" title="Deadlock"></a>Deadlock</h1><h2 id="정의-2"><a href="#정의-2" class="headerlink" title="정의"></a>정의</h2><pre><code>프로세스가 자원을 얻지 못해 다음 처리를 못하는 상황
+= 원하는 리소스가 다른 프로세스(스레드)에게 할당되어 있기 때문에, 무한히 기다리게 되는 상황
+</code></pre><h2 id="DeadLock의-조건"><a href="#DeadLock의-조건" class="headerlink" title="DeadLock의 조건"></a>DeadLock의 조건</h2><ol>
+<li>Mutual Exclusion : 한 리소스는 두개의 프로세스에게 동시에 할당될수 없다.</li>
+<li>Hold And Wait    : 한 프로세스가 한 리소스를 가지고 있고 필요한 또다른 리소스는 다른 프로세스가 가지고 있다.</li>
+<li>No Preemption    : 할당되어 있는 리소스는 프로세스가 해제하기 전까지 강탈할수 없다.</li>
+<li>Circular Wait    : P0가 원하는 자원은 P1이 P1이 원하는 자원은 P2가 …. Pn이 원하는 자료는 P0가 가지고 있다.</li>
+</ol>
+<h2 id="DeadLock의-해결-예방"><a href="#DeadLock의-해결-예방" class="headerlink" title="DeadLock의 해결(예방)"></a>DeadLock의 해결(예방)</h2><ol>
+<li>Mutual Exclusion 부정  : 자원의 공유가 가능하다면 여러개의 프로세스가 동시에 점유할수 있다.</li>
+<li>Hold And Wait 부정     : 미리 자원을 점유하지 못하고, 필요한 자원이 모두 이용 가능할 경우 한꺼번에 점유하고 실행된다.</li>
+<li>No Preemption 부정     : 중간에 강제로 자원을 선점할수 있다.</li>
+<li>Circular Wait 부정     : 각 프로세스에 우선순위를 부여하고 프로세스의 실행 순서를 지정한다.</li>
+</ol>
+<h1 id="Context-Switching"><a href="#Context-Switching" class="headerlink" title="Context Switching"></a>Context Switching</h1><h2 id="정의-3"><a href="#정의-3" class="headerlink" title="정의"></a>정의</h2><pre><code>Running 상태에서 Task(스레드, 프로세스)가 사용하던 Context를 메모리 특정 영역에 저장한 후, 새로 수행될 Task의 Context를 PCB 또는 Stack에서 CPU 레지스터 영역으로 복사하여 수행되도록 하는 작업
+</code></pre><h2 id="Context-Switching-순서"><a href="#Context-Switching-순서" class="headerlink" title="Context Switching 순서"></a>Context Switching 순서</h2><ol>
+<li>인터럽트 : 현재 상태를 PCB에 저장한다.</li>
+<li>프로세스(스레드) 스케쥴링 : 프로세스(스레드) 스케쥴러에 의해 다음 프로세스를 Ready Queue에서 선택한다.</li>
+<li>Dispatch : 다음 프로세스를 PCB에서 복구한다.</li>
+</ol>
+<h2 id="Context-Switching-of-Process-amp-Thread"><a href="#Context-Switching-of-Process-amp-Thread" class="headerlink" title="Context Switching of Process &amp; Thread"></a>Context Switching of Process &amp; Thread</h2><ol>
+<li>Process : 커널 레벨 문맥 교환</li>
+<li>Thread  : 유저 레벨/ 커널 레벨 문맥 교환<ul>
+<li>PCB가 저장되고 복귀하는 과정이 없기 때문에, 프로세스의 문맥교환보다 오버헤드가 줄고, 효율성이 올라간다.</li>
+<li>하지만 동기화가 불완전하거나 불확실한 경우 Race Condition 발생 가능</li>
+</ul>
+</li>
+</ol>
+<h1 id="Preemptive-Non-Preemptive-Scheduling"><a href="#Preemptive-Non-Preemptive-Scheduling" class="headerlink" title="Preemptive / Non-Preemptive Scheduling"></a>Preemptive / Non-Preemptive Scheduling</h1><h2 id="Preemptive-선점-스케쥴링"><a href="#Preemptive-선점-스케쥴링" class="headerlink" title="Preemptive(선점) 스케쥴링"></a>Preemptive(선점) 스케쥴링</h2><pre><code>우선순위가 높은 다른 프로세스가 실행중인 CPU를 강제로 빼앗아 사용할수 있음.
+</code></pre><h2 id="Non-Preemptive-비선점-스케쥴링"><a href="#Non-Preemptive-비선점-스케쥴링" class="headerlink" title="Non-Preemptive(비선점) 스케쥴링"></a>Non-Preemptive(비선점) 스케쥴링</h2><pre><code>CPU가 한 프로세스를 할당하면, 다른 프로세스는 CPU를 선점할수 없음.
+</code></pre><h1 id="Virtual-Memory"><a href="#Virtual-Memory" class="headerlink" title="Virtual Memory"></a>Virtual Memory</h1><h2 id="목적-2"><a href="#목적-2" class="headerlink" title="목적"></a>목적</h2><pre><code>쉬운 프로그래밍이 가능하다 -&gt; 실제 물리주소와 물리적 구조를 몰라도 프로그래밍이 가능
+Multi-Programming의 정도를 올릴수 있다.
+메모리와 하드디스크 간 Swapping 횟수를 줄일수 있다.
+</code></pre><h2 id="가상-메모리-기법"><a href="#가상-메모리-기법" class="headerlink" title="가상 메모리 기법"></a>가상 메모리 기법</h2><ol>
+<li>CPU가 가상 메모리에 우선적으로 수행할 작업을 로드</li>
+<li>Virtual Memory 공간에는 연속적인 가상 메모리가 구성된다.</li>
+<li>MMU를 통해 가상 메모리의 논리적 주소를 물리적 주소로 사상(Mapping) 한다.<pre><code>- 이 과정에서 MMU는 페이지 테이블을 거친다.
+</code></pre></li>
+<li>실제 메모리의 물리적 주소 공간에 페이지가 로드된다.</li>
+</ol>
+<h2 id="MMU-Memory-Management-Unit"><a href="#MMU-Memory-Management-Unit" class="headerlink" title="MMU(Memory Management Unit)"></a>MMU(Memory Management Unit)</h2><pre><code>CPU가 메모리에 접근하는 것을 관리하는 장치.
+가상 메모리 주소와 실제 메모리 주소 사이의 변환을 위해 MMU는 변환 참조 버퍼(Translation Lookaside Buffer, TLB)라는 고속의 보조기억장치를 참조한다
+</code></pre><h1 id="Priority-Queue"><a href="#Priority-Queue" class="headerlink" title="Priority Queue"></a>Priority Queue</h1><h1 id="Priority-Queue-1"><a href="#Priority-Queue-1" class="headerlink" title="Priority Queue"></a>Priority Queue</h1><pre><code>우선순위 속성을 갖는 데이터를 다루며, 우선순위가 높을수록 앞에 자동정렬되어 배치된다.
+우선순위 큐는 힙(Heap, 완전 이진트리)를 이용해 구현된다.
+</code></pre><h1 id="Difference-between-System-Call-and-Interrupt"><a href="#Difference-between-System-Call-and-Interrupt" class="headerlink" title="Difference between System Call and Interrupt"></a>Difference between System Call and Interrupt</h1><h2 id="System-Call"><a href="#System-Call" class="headerlink" title="System Call"></a>System Call</h2><pre><code>유저 레벨에서 커널이 제공하는 서비스(OS 제공 하는 기능/모듈)를 이용하기 위해 호출된다.
+
+커널 영역에서 서비스를 이용하기 위한 인터페이스적 개념
+Application(User) &lt;-&gt; System Call &lt;-&gt; OS
+</code></pre><h2 id="Interrupt-2"><a href="#Interrupt-2" class="headerlink" title="Interrupt"></a>Interrupt</h2><pre><code>주변 장치와 커널이 Communication하는 방식 중 하나(신호의 개념)
+주변 장치나 CPU가 자신에게 발생한 사건을 커널에게 알리기 위한 매커니즘
+</code></pre><h1 id="Locality-of-Reference-참조의-지역성"><a href="#Locality-of-Reference-참조의-지역성" class="headerlink" title="Locality of Reference(참조의 지역성)"></a>Locality of Reference(참조의 지역성)</h1><h2 id="지역성의-원리"><a href="#지역성의-원리" class="headerlink" title="지역성의 원리"></a>지역성의 원리</h2><pre><code>주어진 시간동안 CPU가 메모리 참조가 제한된 영역에서만 이루어지는 현상
+
+지역성의 원리에 의해 한번 참조된 부분은 다시 참조될 확률이 높다.
+</code></pre><h1 id="Cache-Memory"><a href="#Cache-Memory" class="headerlink" title="Cache Memory"></a>Cache Memory</h1><pre><code>CPU의 빠른 처리 속도와 Main Memory의 느린 처리 속도 차이를 해결하기 위한 기법
+캐시 메모리는 지역성의 원리를 이용한 좋은 예제
+
+Cache &lt;-&gt; CPU  WORD 단위
+Cache &lt;-&gt; Main Memory  Block 단위
+</code></pre><h2 id="Cache-Miss"><a href="#Cache-Miss" class="headerlink" title="Cache Miss"></a>Cache Miss</h2><ol>
+<li><p>Compulsory Miss</p>
+<p> 최초 데이터 접근 시 반드시 발생하는 미스</p>
+</li>
+<li><p>Capacity Miss</p>
+<p> 캐시 사이즈가 작아서 발생하는 미스, 캐시가 모든 블럭을 포함하지 않음.</p>
+</li>
+<li><p>Conflict Miss</p>
+<p> 캐시의 한 블락에 너무 많은 메모리 블럭이 매핑되어서 생기는 미스<br> (Set Associative / Direct Mapped)</p>
+</li>
+<li><p>Invalidation</p>
+<p> 두 CPU가 동시에 하나의 데이터에 접근하면서 발생하는 미스</p>
+</li>
+</ol>
+<h1 id="Atomic-Operation"><a href="#Atomic-Operation" class="headerlink" title="Atomic Operation"></a>Atomic Operation</h1><pre><code>Operation을 결합하여 하나의 Operation으로 표시되어, 결과가 성공이나 실패로 나타나는 Operation.
+
+Race Condition을 막기 위해 만들어졌다.
+
+연산이 끝날때 까지 다른 프로세스는 값의 변화에 대해 알수 없음.
+연산 실패시 시스템은 다른 Operation이 시작되기 전까지 이전의 실패한 상태를 저장.
+
+ex) InterlockedAdd, InterlockedExchange 등
+</code></pre><h1 id="Paging-Demand-Paging-Technique"><a href="#Paging-Demand-Paging-Technique" class="headerlink" title="Paging, Demand Paging Technique"></a>Paging, Demand Paging Technique</h1><h2 id="페이징-기법"><a href="#페이징-기법" class="headerlink" title="페이징 기법"></a>페이징 기법</h2><pre><code>작업을 동일한 크기의 여러 페이지로 나누어 보조 기억장치에 저장해 두고, 작업이 실행을 시작하면, 필요한 때마다 해당 페이지를 주기억 장치로 로드하는 방식
+</code></pre><h2 id="Page-Fault"><a href="#Page-Fault" class="headerlink" title="Page Fault"></a>Page Fault</h2><pre><code>해당 페이지(작업이 요구된 페이지)의 페이지 엔트리가 유효하지 않을때 발생
+</code></pre><h2 id="페이지-교체-Page-Replacement-정책"><a href="#페이지-교체-Page-Replacement-정책" class="headerlink" title="페이지 교체(Page Replacement) 정책"></a>페이지 교체(Page Replacement) 정책</h2><ol>
+<li><p>FIFO</p>
+<ul>
+<li>메모리에 오래 있던 페이지를 교환</li>
+<li>계속 사용하는 페이지의 경우 문제가 발생할수 있다.</li>
+<li>Belady’s Anomaly(벨라디의 모순)이 나타남 : 프로세스에게 프레임을 더 주었는데, 더 많은 페이지 폴트가 발생하는 현</li>
+</ul>
+</li>
+<li><p>LRU(Least Recently Used)</p>
+<ul>
+<li>가장 오랫동안 사용하지 않은 페이지를 교체(지역성의 이론 근거하여 만들어짐)</li>
+</ul>
+</li>
+<li>OPT<br> Optimal하게 페이지를 교체 구현이 어렵다.</li>
+<li>LFU(Least Frequently Used)<ul>
+<li>각 페이지들에 대해 참조된 횟수를 기준으로 교체</li>
+</ul>
+</li>
+</ol>
+<h2 id="Thrashing-쓰레싱"><a href="#Thrashing-쓰레싱" class="headerlink" title="Thrashing(쓰레싱)"></a>Thrashing(쓰레싱)</h2><pre><code>메모리나 캐쉬 등에서 너무 많은 페이지 교체가 발생하는 현상 -&gt; 속도저하를 일으켜 성능을 떨어트린다.
+</code></pre><h1 id="Segment-Technique"><a href="#Segment-Technique" class="headerlink" title="Segment Technique"></a>Segment Technique</h1><h2 id="정의-4"><a href="#정의-4" class="headerlink" title="정의"></a>정의</h2><pre><code>각 작업을 여러개의 서로 다른 세그먼트로 나누어 작업 실행에 필요한 세그먼트만 주 기억장치로 적재하여 실행하는 방식
+
+세그먼트 기법에서는 주 기억장치가 작업을 동적인 크기로 할당한다. &lt;-&gt; 페이징에서는 동일한 Page크기로 분할
+</code></pre><h1 id="Pipeline-Processing-방식"><a href="#Pipeline-Processing-방식" class="headerlink" title="Pipeline Processing 방식"></a>Pipeline Processing 방식</h1><h2 id="Pipeline"><a href="#Pipeline" class="headerlink" title="Pipeline"></a>Pipeline</h2><pre><code>하나의 프로세스를 서로 다른 기능을 가진 여러 세부 서브 프로세스로 나누어 각 서브 프로세스가 동시에 서로 다른 데이터를 취급하도록 하는 방식
+</code></pre><h2 id="Pipeline-목적"><a href="#Pipeline-목적" class="headerlink" title="Pipeline 목적"></a>Pipeline 목적</h2><ol>
+<li>프로세스 처리의 병렬성 증대<ul>
+<li>병렬 시스템에서 각 프로세스 상에서 서로 다른 연산들이 동시에 수행된다.(파이프라인)</li>
+</ul>
+</li>
+<li>MIMD(Multi Instruction Stream, Multi Data Stream)<ul>
+<li>멀티 프로세서, 파이프라인 프로세서</li>
+</ul>
+</li>
+</ol>
+<h2 id="파이프라인에서-중요한-점"><a href="#파이프라인에서-중요한-점" class="headerlink" title="파이프라인에서 중요한 점"></a>파이프라인에서 중요한 점</h2><pre><code>한 단계의 처리 시간이 다른 단계의 처리 시간과 큰 차이가 날 경우, 병목현상으로 인한 성능저하. 단계별로 상호 동기화가 필요
+</code></pre><h1 id="주-기억-장치-RAM-ROM-Cache-간-데이터-전송"><a href="#주-기억-장치-RAM-ROM-Cache-간-데이터-전송" class="headerlink" title="주 기억 장치(RAM/ROM)  Cache 간 데이터 전송"></a>주 기억 장치(RAM/ROM) <-> Cache 간 데이터 전송</-></h1><h2 id="Mapping-Process"><a href="#Mapping-Process" class="headerlink" title="Mapping Process"></a>Mapping Process</h2><ol>
+<li>Directed Mapping</li>
+<li>Associative Mapping  : 무작정 빈곳을 찾아서 Cahce에 넣는 방식</li>
+<li>(N-Way) Set Associative Mapping : Directed Mapping 방식을 사용하는 Cache N개로 구성. 저장된 데이터에 대해서는 Associative Mapping.</li>
+</ol>
+<h2 id="Cache-Arragement"><a href="#Cache-Arragement" class="headerlink" title="Cache Arragement"></a>Cache Arragement</h2><ol>
+<li>Cache 블록을 늘리는 방법<br> Spatial Locality(공간적 지역성)에 대한 고려가 필요</li>
+<li>Cache Way 수를 늘리는 방법(Set-Associative)<br> Temporal Locality(시간적 지역성)에 대한 고려가 필요</li>
+</ol>
+<h1 id="RISC-CISC"><a href="#RISC-CISC" class="headerlink" title="RISC, CISC"></a>RISC, CISC</h1><h2 id="RISC-Reduced-Instruction-Set-Computer"><a href="#RISC-Reduced-Instruction-Set-Computer" class="headerlink" title="RISC(Reduced Instruction Set Computer)"></a>RISC(Reduced Instruction Set Computer)</h2><pre><code>CPU 명령어 갯수를 줄여 하드웨어 구조를 간단하게 만드는 방법
+적은 수의 명령어만으로 명령어 집합을 구성
+고정 길이 명령어를 사용하여 빠른 해석이 가능
+파이프라인을 사용하지않음으로 많은 레지스터의 사용, 레지스터간 Save, Load 수행한다.
+</code></pre><h2 id="CISC-Complexed-Instruction-Set-Computer"><a href="#CISC-Complexed-Instruction-Set-Computer" class="headerlink" title="CISC(Complexed Instruction Set Computer)"></a>CISC(Complexed Instruction Set Computer)</h2><pre><code>복잡한 명령어 집합을 가짐.
+가변 길이 명령어를 사용한다.
+회로도가 많이 복잡하며, 레지스터 간 / 레지스터 - 메모리 / 메모리 - 메모리 연산을 수행한다.
+</code></pre><h1 id="Garbage-Collection"><a href="#Garbage-Collection" class="headerlink" title="Garbage Collection"></a>Garbage Collection</h1><h2 id="정의-5"><a href="#정의-5" class="headerlink" title="정의"></a>정의</h2><pre><code>개발자가 명시적으로 해야 했던 메모리 관리를 자동적으로 처리하는 기법
+</code></pre><h2 id="목적-3"><a href="#목적-3" class="headerlink" title="목적"></a>목적</h2><pre><code>참조를 잃는 순간 지우는 등의 작업을 통해 메모리 누수를 방지한다.
+</code></pre><h2 id="GC-Algorithm"><a href="#GC-Algorithm" class="headerlink" title="GC Algorithm"></a>GC Algorithm</h2><pre><code>Generation에 따라 적절한 알고리즘을 적용(Young-Tenured_Perm. 생성된지 얼마 안된 객체는 GC의 대상이 되기 쉽다.)
+</code></pre><ol>
+<li>Serial<ul>
+<li>하나의 Garbage Collector가 차례대로 다 처리하는 방식</li>
+</ul>
+</li>
+<li>Parallel<ul>
+<li>여러개의 Garbage Collector가 나눠서 처리하는 방식</li>
+</ul>
+</li>
+<li>Stop the World<ul>
+<li>프로세스가 일시적으로 실행을 멈추고, GC 수행하는 방식</li>
+</ul>
+</li>
+<li>Concurrent<ul>
+<li>프로세스 실행과 함께 GC를 진행</li>
+</ul>
+</li>
+<li><p>Compacting / Non-Compacting</p>
+<ul>
+<li><p>단편화를 신경써서 압축을 하는 방식 / 하지않은 방식</p>
+<p>5-1. 단편화</p>
+<p>  내부 단편화 : 100 크기의 공간에 70크기의 프로세스가 들어가면 30의 공간이 남는데 이를 내부 단편화라고 한다.<br>  외부 단편화 : 프로세스의 크기(120)가 남아 있는 메모리 공간(100)보다 크기 때문에 발생하는 단편화를 외부 단편화라고 한다.</p>
+</li>
+</ul>
+</li>
+<li><p>Copying</p>
+<ul>
+<li>특정 영역으로 복하하여 추후에 메모리를 해제하는 방식</li>
+</ul>
+</li>
+</ol>
+<h1 id="RPC-RMI"><a href="#RPC-RMI" class="headerlink" title="RPC, RMI"></a>RPC, RMI</h1><h2 id="RPC-Remote-Procedure-Call"><a href="#RPC-Remote-Procedure-Call" class="headerlink" title="RPC(Remote Procedure Call)"></a>RPC(Remote Procedure Call)</h2><pre><code>다른 네트워크의 컴퓨터에 있는 함수를 호출할 수 있도록 해주는 저 수준의 프로세스 간 통신 방법
+
+- 네트워프 프로그래밍을 함수 호출 레벨 수준으로 작성할수 있게 해주는 API
+</code></pre><h2 id="RMI-Remote-Method-Invocation"><a href="#RMI-Remote-Method-Invocation" class="headerlink" title="RMI(Remote Method Invocation)"></a>RMI(Remote Method Invocation)</h2><pre><code>원격 메소드 호출로 네트워크 상에서 떨어져 있는 객체의 메서드를 투명(Transparent) 하게 호출해주는 방법
+
+- RPC와 비슷하지만 객체지향적 개념이 추가되었다고 볼수 있음.
+</code></pre></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/03/19/OperationSystem/,Mute의 개발 블로그,Operation System Content,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/2018/03/19/GameServer0/" title="Game Server Programming 1">이전 포스트</a></li><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/03/19/Programming Language/" title="Programming Language(C/C++)">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify: || false, 
+  verify:|| false, 
+  app_id:'',
+  app_key:'',
+  placeholder:'',
+  path: window.location.pathname,
+  avatar:''
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
