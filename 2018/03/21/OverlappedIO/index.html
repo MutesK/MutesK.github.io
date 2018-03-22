@@ -1,41 +1,58 @@
-<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Overlapped I/O · Mute의 개발 블로그</title><!-- hexo-inject:begin --><!-- hexo-inject:end --><meta name="description" content="Event 통지 패턴
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Overlapped I/O · Mute의 개발 블로그</title><meta name="description" content="Event 통지 패턴
+
 Select 모델은 Reactor 패턴이라고 볼수있다. 그에 반해, Overlapped IO, IOCP는 Proactor 패턴이다.
 
 Reactor 패턴
-123456789Reactor 객체를 만들고, 사건 발생시 React가 반응하여, Event "><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"><!-- hexo-inject:begin --><!-- hexo-inject:end --></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>Overlapped I/O</a></h3></div><div class="post-content"><h1 id="Event-통지-패턴"><a href="#Event-통지-패턴" class="headerlink" title="Event 통지 패턴"></a>Event 통지 패턴</h1><blockquote>
-<!-- hexo-inject:begin --><!-- hexo-inject:end --><p>Select 모델은 Reactor 패턴이라고 볼수있다. 그에 반해, Overlapped IO, IOCP는 Proactor 패턴이다.</p>
+
+123456789Reactor 객체를 만들고, 사건 발생시 React가 반응하여, Even"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>Overlapped I/O</a></h3></div><div class="post-content"><h1>Event 통지 패턴</h1>
+<blockquote>
+<p>Select 모델은 Reactor 패턴이라고 볼수있다. 그에 반해, Overlapped IO, IOCP는 Proactor 패턴이다.</p>
 </blockquote>
-<h2 id="Reactor-패턴"><a href="#Reactor-패턴" class="headerlink" title="Reactor 패턴"></a>Reactor 패턴</h2><p><img src="https://docs.google.com/drawings/d/1w6tNV2wHin9QyotGMF7vOiPXXl6-0aJe6bzOOOcJiTE/pub?w=644&amp;h=417" alt="Reactor Pattern"></p>
+<h2>Reactor 패턴</h2>
+<p><img src="https://docs.google.com/drawings/d/1w6tNV2wHin9QyotGMF7vOiPXXl6-0aJe6bzOOOcJiTE/pub?w=644&amp;h=417" alt="Reactor Pattern"></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Reactor 객체를 만들고, 사건 발생시 React가 반응하여, Event Handler에게 이벤트를 발생한다.</span><br><span class="line"></span><br><span class="line">이벤트를 발생하면 역 다중화기를 이용하여, Event Handler 단위로 분할한다.</span><br><span class="line">분할된 이벤트는 해당 Event Handler에게 발송되고(Dispatch)</span><br><span class="line">Event Handler는 알맞은 Method을 통해 이벤트를 처리한다.</span><br><span class="line"></span><br><span class="line">Reactor 패턴에는 리엑터가 등록된 이벤트핸들러들을 들고 관리해야된다.</span><br><span class="line">동시에 수많은 IO 요청이 오면, 이벤트 핸들러가 너무 많아져서, 성능에 좋지 않음.</span><br><span class="line">멀티스레드 활용도가 낮아진다.</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>Select, Epoll, WSAAEventSelect 등이 이에 해당된다.</p>
 </blockquote>
-<h2 id="Proactor"><a href="#Proactor" class="headerlink" title="Proactor"></a>Proactor</h2><p><img src="http://cfile29.uf.tistory.com/image/21379E4E552AA9E2247E52" style="cursor: pointer;max-width:100%;height:auto" width="700" height="321" filename="proactor_uml.png" filemime="image/jpeg"></p>
+<h2>Proactor</h2>
+<img src="http://cfile29.uf.tistory.com/image/21379E4E552AA9E2247E52" style="cursor: pointer;max-width:100%;height:auto" width="700" height="321" filename="proactor_uml.png" filemime="image/jpeg">
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Proactor는 비동기 작업을 지시하고 완료 이벤트 받을 Completion Handler 등록한다.</span><br><span class="line"></span><br><span class="line">비동기 프로세스가 가능한 작업을 대기한다. 혹은 작업이 발생하면 깨어나 처리한다.</span><br><span class="line"></span><br><span class="line">가능한 작업들이 생기면 비동기 프로세스가 작업을 완료하여, 비동기적으로 처리한다.</span><br><span class="line"></span><br><span class="line">작업이 완료되면, 비동기 프로세스는 Completion Dispatcher 에게 정보를 넘기고 Dispatcher는 정보를 이벤트로 만들어서 적절한 Completion Handler 에게 발송한다.(Dispatch)</span><br><span class="line"></span><br><span class="line">Completion Handler는 받은 이벤트 정보를 토대로 정해는 콜백을 호출하여 Process Event를 처리한다.</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>Overlapped IO, IOCP가 이에 해당</p>
 </blockquote>
-<h1 id="Overlapped-I-O"><a href="#Overlapped-I-O" class="headerlink" title="Overlapped I/O"></a>Overlapped I/O</h1><blockquote>
+<h1>Overlapped I/O</h1>
+<blockquote>
 <p>비동기 입출력과 비동기 통지를 결합하였다. IO을 충접치켜, 하나의 스레드에서 여러개의 IO처리를 가능하게 한다.</p>
 </blockquote>
 <ol>
-<li><p>WSASend, WSARecv을 이용해 Overlapped IO 송수신하겠다고 우리가 커널에게 요청하면, OS가 송수신하고 우리에게 통지한다.</p>
+<li>
+<p>WSASend, WSARecv을 이용해 Overlapped IO 송수신하겠다고 우리가 커널에게 요청하면, OS가 송수신하고 우리에게 통지한다.</p>
 </li>
-<li><p>소켓 내부 버퍼를 사용하지 않더라도, 직접 TCP 전송 버퍼에서 데이터를 보내고 받을수 있다.</p>
-</li>
-</ol>
-<h2 id="내부-버퍼를-사용하지-않다면"><a href="#내부-버퍼를-사용하지-않다면" class="headerlink" title="내부 버퍼를 사용하지 않다면?"></a>내부 버퍼를 사용하지 않다면?</h2><ol>
-<li><p>수신시에는 TCP 수신버퍼에서 바로 가져올수 있도록, 충분한 수의 Overlapped IO 호출을 미리 해야된다.</p>
-</li>
-<li><p>송신시에는 사용자 버퍼량을 적당히 설정하고, TCP 송신 버퍼의 크기보다 크지않도록 설정해놓지 않으면, 사용자 버퍼의 내용이 TCP 송신버퍼에 다 복사될때까지, 사용자 버퍼를 쓰지못하기 때문에, 끊김 현상이 발생할수 있다.</p>
-</li>
-<li><p>데이터 전송이 완료되는 시점 이전까지 사용자 버퍼의 내용을 지우면 안된다.</p>
+<li>
+<p>소켓 내부 버퍼를 사용하지 않더라도, 직접 TCP 전송 버퍼에서 데이터를 보내고 받을수 있다.</p>
 </li>
 </ol>
-<h2 id="장단점"><a href="#장단점" class="headerlink" title="장단점"></a>장단점</h2><ul>
-<li><p>장점<br>  사용자가 지정한 버퍼로 바로 복사가 일어나기 때문에 데이터 복사 비용이 준다.</p>
+<h2>내부 버퍼를 사용하지 않다면?</h2>
+<ol>
+<li>
+<p>수신시에는 TCP 수신버퍼에서 바로 가져올수 있도록, 충분한 수의 Overlapped IO 호출을 미리 해야된다.</p>
 </li>
-<li><p>단점<br>  멀티 스레드에 특화되지 않음.</p>
+<li>
+<p>송신시에는 사용자 버퍼량을 적당히 설정하고, TCP 송신 버퍼의 크기보다 크지않도록 설정해놓지 않으면, 사용자 버퍼의 내용이 TCP 송신버퍼에 다 복사될때까지, 사용자 버퍼를 쓰지못하기 때문에, 끊김 현상이 발생할수 있다.</p>
+</li>
+<li>
+<p>데이터 전송이 완료되는 시점 이전까지 사용자 버퍼의 내용을 지우면 안된다.</p>
+</li>
+</ol>
+<h2>장단점</h2>
+<ul>
+<li>
+<p>장점<br>
+사용자가 지정한 버퍼로 바로 복사가 일어나기 때문에 데이터 복사 비용이 준다.</p>
+</li>
+<li>
+<p>단점<br>
+멀티 스레드에 특화되지 않음.</p>
 </li>
 </ul>
 </div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/03/21/OverlappedIO/,Mute의 개발 블로그,Overlapped I/O,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/2018/03/21/IOCP/" title="IOCP에 대해">이전 포스트</a></li><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/03/21/Select_Model/" title="Select 모델, ASyncSelect">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
@@ -47,4 +64,4 @@ Reactor 패턴
   placeholder:'',
   path: window.location.pathname,
   avatar:''
-})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end --></body></html>
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
