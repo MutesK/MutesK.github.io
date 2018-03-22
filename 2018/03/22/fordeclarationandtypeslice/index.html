@@ -1,0 +1,51 @@
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>전방선언과 타입슬라이스 · Mute의 개발 블로그</title><meta name="description" content="전방선언 (forward Declartion)
+프로그램 규모가 커지다보면 파일간의 의존도가 높아져서 컴파일시간이 늘어난다.
+
+
+‘#include’ 의존성을 최소화에 목적
+
+조건
+포인터 및 참조 형태로 이름만 참조가 가능하다.
+
+12345678910class A;  //"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>전방선언과 타입슬라이스</a></h3></div><div class="post-content"><h1 id="전방선언-forward-Declartion"><a href="#전방선언-forward-Declartion" class="headerlink" title="전방선언 (forward Declartion)"></a>전방선언 (forward Declartion)</h1><blockquote>
+<p>프로그램 규모가 커지다보면 파일간의 의존도가 높아져서 컴파일시간이 늘어난다.</p>
+</blockquote>
+<ol>
+<li>‘#include’ 의존성을 최소화에 목적</li>
+</ol>
+<h2 id="조건"><a href="#조건" class="headerlink" title="조건"></a>조건</h2><ul>
+<li>포인터 및 참조 형태로 이름만 참조가 가능하다.</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>;</span>  <span class="comment">// 전방선언</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 포인터 형태 이름 참조</span></span><br><span class="line">    B(<span class="keyword">const</span> A* AInstance);</span><br><span class="line">    <span class="comment">// 참조 형태 이름 참조</span></span><br><span class="line">    B(<span class="keyword">const</span> A&amp; AInstance);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>매개변수, 리턴타입을 위한 이름만 참조한다.</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">SetA</span><span class="params">(A a)</span></span>;</span><br><span class="line">    <span class="function">A <span class="title">GetA</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>전방선언을 할경우, 컴파일러에게 심볼 테이블에 추가하고, 그 클래스의 정의를 제공해주겠다고 약속한다.</p>
+</blockquote>
+<blockquote>
+<p>cpp 파일에는 헤더 include가 들어간다. (클래스 정의)</p>
+</blockquote>
+<h1 id="Type-Slice"><a href="#Type-Slice" class="headerlink" title="Type Slice"></a>Type Slice</h1><blockquote>
+<p>부모, 자식 클래스의 오브젝트를 대입시킬때, 자식클래스의 객체를 부모의 객체로 대입시킬때  일부 정보가 사라지는 문제. (Upcast)</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Human</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">string</span> name;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> :</span> <span class="keyword">public</span> Human</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> stNum;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function">Human <span class="title">H</span><span class="params">(<span class="string">"A"</span>)</span></span>;</span><br><span class="line"><span class="function">Student <span class="title">S</span><span class="params">(<span class="string">"B"</span>, <span class="number">1000</span>)</span></span>;</span><br><span class="line"></span><br><span class="line">H = S;      <span class="comment">// 가능</span></span><br><span class="line">S = H;      <span class="comment">// 에러</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://soen.kr/lecture/ccpp/cpp3/30-1-1.files/image002.gif" alt="seon님의 슬라이스 문제"></p>
+<blockquote>
+<p>H 객체에는 stNum에 대응되는 값이 없기 때문에, 날라가게된다.</p>
+</blockquote>
+<h2 id="반대로-한다면"><a href="#반대로-한다면" class="headerlink" title="반대로 한다면?"></a>반대로 한다면?</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pS = (Student *)&amp;H;</span><br></pre></td></tr></table></figure>
+<p><img src="http://soen.kr/lecture/ccpp/cpp3/30-1-1.files/image004.gif" alt="seon님의 슬라이스 문제"></p>
+<p><em>참고한 곳의 저자가 부모의 포인터는 자식을 가르킬수 있다는 점을 기억해야된다고 함.</em></p>
+<h1 id="참고-사이트"><a href="#참고-사이트" class="headerlink" title="참고 사이트"></a>참고 사이트</h1><p><a href="http://soen.kr/lecture/ccpp/cpp3/30-1-1.htm" target="_blank" rel="noopener">타입슬라이스 : Soen.kr 혼자 연구하는 C/C++</a></p>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-22</span><i class="fa fa-tag"></i><a class="tag" href="/tags/C/" title="C++">C++ </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/03/22/fordeclarationandtypeslice/,Mute의 개발 블로그,전방선언과 타입슬라이스,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/03/22/AStarandJPS/" title="A*, JPS">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify: || false, 
+  verify:|| false, 
+  app_id:'',
+  app_key:'',
+  placeholder:'',
+  path: window.location.pathname,
+  avatar:''
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
