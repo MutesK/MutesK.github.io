@@ -1,9 +1,7 @@
-<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Mute의 개발 블로그</title><meta name="description" content="게임 서버 개발 및 각종개발기술 공부"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a class="current" href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)" style="display:none;"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/IOCP/">IOCP에 대해</a></h3></div><div class="post-content"><p>IOCP에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/OverlappedIO/">Overlapped I/O</a></h3></div><div class="post-content"><p>Overlapped I/O에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/Select_Model/">Select 모델, ASyncSelect</a></h3></div><div class="post-content"><p>Select 소켓 입출력에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/Socket_Programming/">소켓 함수</a></h3></div><div class="post-content"><p>일반적인 소켓함수에 대해 블록킹과 넌블록킹의 동작의 차이에 대한 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/GameServer1/">Game Server Programming 2</a></h3></div><div class="post-content"><p>
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Mute의 개발 블로그</title><meta name="description" content="게임 서버 개발 및 각종개발기술 공부"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a class="current" href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)" style="display:none;"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/22/AStarandJPS/">A*, JPS</a></h3></div><div class="post-content"><p>A* 알고리즘, JPS 알고리즘 구현</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-22</span><i class="fa fa-tag"></i><a class="tag" href="/tags/algorithmn/" title="algorithmn">algorithmn </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/22/BOJ1193/">백준저지 1193번</a></h3></div><div class="post-content"><p>분수찾기 문제풀이</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-22</span><i class="fa fa-tag"></i><a class="tag" href="/tags/algorithmn/" title="algorithmn">algorithmn </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/IOCP/">IOCP에 대해</a></h3></div><div class="post-content"><p>IOCP에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/OverlappedIO/">Overlapped I/O</a></h3></div><div class="post-content"><p>Overlapped I/O에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/Select_Model/">Select 모델, ASyncSelect</a></h3></div><div class="post-content"><p>Select 소켓 입출력에 대해 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/21/Socket_Programming/">소켓 함수</a></h3></div><div class="post-content"><p>일반적인 소켓함수에 대해 블록킹과 넌블록킹의 동작의 차이에 대한 설명</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-21</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Winsock/" title="Winsock">Winsock </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/GameServer1/">Game Server Programming 2</a></h3></div><div class="post-content"><p>
 
 IOCP
-
 동작원리
-
 IOCP 생성
 IO장치와 IOCP 연결
 
@@ -13,53 +11,44 @@ IO Completion Queue
 
 Page-Lock
 Non-Paged Pool
-
 Non-Paged Pool의 사용되는 경우
 Zero Byte Recv
 SO_RCVBUF, SO_SNDBUF
 
 
 Thread
-
-멀...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Windows-API-MultiThread-GameServer/" title="Windows API, MultiThread, GameServer">Windows API, MultiThread, GameServer </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/GameServer0/">Game Server Programming 1</a></h3></div><div class="post-content"><p>
+멀티스레드...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/Windows-API-MultiThread-GameServer/" title="Windows API, MultiThread, GameServer">Windows API, MultiThread, GameServer </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/GameServer0/">Game Server Programming 1</a></h3></div><div class="post-content"><p>
 
 Game Server Programming 1
-
 OSI 7계층, TCP/IP 4 계층
-
 OSI 7계층
 TCP/IP 4 계층
 
 
 TCP/UDP의 차이
-
 UDP(User Diagram Protocal)
 TCP(Transmission Control Protocal)
 
 
-Capsula...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/GameServer-Winsock-TCP-IP/" title="GameServer, Winsock, TCP/IP">GameServer, Winsock, TCP/IP </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/OperationSystem/">Operation System Content</a></h3></div><div class="post-content"><p>
+Capsulatio...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/GameServer-Winsock-TCP-IP/" title="GameServer, Winsock, TCP/IP">GameServer, Winsock, TCP/IP </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/OperationSystem/">Operation System Content</a></h3></div><div class="post-content"><p>
 
 Operation System Content
 Thread / Process
-
 Process
 Thread
 
 
 PCB
 프로세스와 쓰레드 상태 전이도
-
 프로세스 상태 전이도
 스레드의 상태 전이도
 
 
 Logical Address, Physical Address
-
-Logical Addr...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/CS-OS/" title="CS, OS">CS, OS </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/Programming Language/">Programming Language(C/C++)</a></h3></div><div class="post-content"><p>
+Logical Address...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/CS-OS/" title="CS, OS">CS, OS </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/03/19/Programming Language/">Programming Language(C/C++)</a></h3></div><div class="post-content"><p>
 [TOC]
 이 글은 C와 C++을 한권이라도 읽은 사람 대상으로 적었습니다. 개인 정리용에 가까우므로, 이걸로 공부하지마세요. !
 메모리 구조
-
 
 
 CODE
@@ -73,5 +62,4 @@ DATA
 
 
 BSS
-초기화값이 없는 전역변수(...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/C-C/" title="C, C++">C, C++ </a></div></div></div></div><div class="post animated fadeInDown"><div class="post-title"><h3><a href="/2018/02/22/GameServer2/">Game Server Programming 3</a></h3></div><div class="post-content"><p>DB
-1234567Stateless 서버에서는 Statefull 서버와 달리 DB를 통해 데이터 저장하게 되고 , DB가 최신데이터가 된다.StateFull 서버는 Stateless 서버와 달리 메모리에 상주하고 잇는 데이터가 최신데이터이다 DB는 사실상 백업용이다.어떠한 행위일때...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-02-22</span><i class="fa fa-tag"></i><a class="tag" href="/tags/GameServer-DB/" title="GameServer, DB">GameServer, DB </a></div></div></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/">이전</a></li></ul></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
+초기화값이 없는 전역변수(컴...</p></div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-03-19</span><i class="fa fa-tag"></i><a class="tag" href="/tags/C-C/" title="C, C++">C, C++ </a></div></div></div></div><div class="pagination"><ul class="clearfix"><li class="pre pagbuttons"><a class="btn" role="navigation" href="/">이전</a></li><li class="next pagbuttons"><a class="btn" role="navigation" href="/page/3/">다음</a></li></ul></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
