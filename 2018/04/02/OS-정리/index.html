@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>OS-정리 · Mute의 개발 블로그</title><meta name="description" content="Process의 이해
+프로세스란 실행 중에 있는 프로그램을 의미프로그램을 실행하는 순간, 실행을 위해 메모리 할당이 이뤄지고, 이 메모리 공간으로 바이너리 코드가 올라간다.
+
+프로세스를 구성하는 요소
+Code : 함수, 제어, 상수
+Heap : 동적할당
+Data :  "><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>OS-정리</a></h3></div><div class="post-content"><h1 id="Process의-이해"><a href="#Process의-이해" class="headerlink" title="Process의 이해"></a>Process의 이해</h1><blockquote>
+<p>프로세스란 실행 중에 있는 프로그램을 의미<br>프로그램을 실행하는 순간, 실행을 위해 메모리 할당이 이뤄지고, 이 메모리 공간으로 바이너리 코드가 올라간다.</p>
+</blockquote>
+<h2 id="프로세스를-구성하는-요소"><a href="#프로세스를-구성하는-요소" class="headerlink" title="프로세스를 구성하는 요소"></a>프로세스를 구성하는 요소</h2><ul>
+<li>Code : 함수, 제어, 상수</li>
+<li>Heap : 동적할당</li>
+<li>Data :  전역변수</li>
+<li>BSS : 초기화 되지 않은 전역변수</li>
+<li>Register : 프로그램 실행을 위한 레지스터의 상태</li>
+</ul>
+<h2 id="스케쥴링"><a href="#스케쥴링" class="headerlink" title="스케쥴링"></a>스케쥴링</h2><blockquote>
+<p>여러개의 프로세스를 실행되는 것처럼 보이게 하기 위해서 여러개의 프로세스들이 CPU<br>할당시간을 나눈다.</p>
+</blockquote>
+<h2 id="기본원리"><a href="#기본원리" class="headerlink" title="기본원리"></a>기본원리</h2><p>CPU 할당 순서 및 방법을 결정짓는 일을 가르켜 스케쥴링이라고 하고, 이때 사용하는 알고리즘을<br>스케쥴링 알고리즘이라고 한다.</p>
+<h1 id="문맥교환"><a href="#문맥교환" class="headerlink" title="문맥교환"></a>문맥교환</h1><p>실행중인 프로세스 A가 있고 이제 B를 실행하고자 할때.<br>A의 프로세스를 Ready 상태로 바꾼뒤, CPU 내 A 프로세스 레지스터를 PCB에 백업한다.<br>그후 B 프로세스의 PCB의 레지스터를 가져온뒤 B의 상태를 Running으로 바꾼다.</p>
+<p>실행되는 프로세스의 변경되정에서 발생하는 컨텍스트 스위칭은 시스템에 많은 부담을 준다.</p>
+<blockquote>
+<p>레지스터의 갯수, 프로세스 별로 관리되어야할 데이터 종류가 많을수록 부담이 커진다.</p>
+</blockquote>
+<h1 id="커널-오브젝트"><a href="#커널-오브젝트" class="headerlink" title="커널 오브젝트"></a>커널 오브젝트</h1><blockquote>
+<p>커널에서 관리하는 중요한 정보를 담아둔 데이터 블록을 가리켜 커널 오브젝트라고한다.</p>
+</blockquote>
+<p>사실 우리가 Windows API를 호출하면 OS에게 요청을 할뿐 실질적으로 만드는것이 아니다.</p>
+<p>Windows 개발자들은 프로세스 상태 정보를 저장하기 위해 구조체를 만들었다.<br>프로세스를 생성할때마다, 프로세스 관리 구조체 변수가 하나씩 생성되고, 새롭게 생성된 프로세스정보들로 초기화 되는데 이것이 커널 오브젝트이다.</p>
+<p>커널 오브젝트는 프로세스만 쓰는것이 아니라, 스레드, IPC 등에서도 사용된다.</p>
+<blockquote>
+<p>Windows 운영체제는 프로세스, 쓰레드 혹은 파일과 같은 리소스들을 원할히 관리하기 위해서 필요한 정보를 저장하게 되는데, 이때 사용되는 메모리 블록을 가르켜 커널 오브젝트라고 한다.</p>
+</blockquote>
+<h1 id="오브젝트-핸들-Handle-을-이용한-커널-오브젝트-조작"><a href="#오브젝트-핸들-Handle-을-이용한-커널-오브젝트-조작" class="headerlink" title="오브젝트 핸들(Handle)을 이용한 커널 오브젝트 조작"></a>오브젝트 핸들(Handle)을 이용한 커널 오브젝트 조작</h1><p>프로그래머는 직접 커널 오브젝트를 조작할수 없는데, 핸들을 통해서 간적적인 조작을 하게된다.<br>이 역시 OS에 요청하는 방식이다.</p>
+<p>핸들은 커널 오브젝트에 할당되는 숫자에 불구하다.</p>
+<h2 id="커널-오브젝트와-핸들과의-관계"><a href="#커널-오브젝트와-핸들과의-관계" class="headerlink" title="커널 오브젝트와 핸들과의 관계"></a>커널 오브젝트와 핸들과의 관계</h2><p>커널 오브젝트는 프로세스에 종속적인 것이 아니라, 운영체제에 종속적인 관계로 커널 오브젝트의 소멸지점은 Os에 의해 결정된다.</p>
+<p>커널 오브젝트는 운영체제에 종속적인 관계이기 때문에, 여러 프로세스에 의해서 OS에 요청에 의한 간접적 접근이 가능하다.</p>
+<p>즉 커널 오브젝트는 여러 프로세스에 의해 접근이(공유) 가능해진다.</p>
+<h1 id="Usage-Count-CloseHandle"><a href="#Usage-Count-CloseHandle" class="headerlink" title="Usage Count + CloseHandle"></a>Usage Count + CloseHandle</h1><p>프로세스가 소멸한다고 해서 커널 오브젝트가 소멸된다고 할수도 있짐나, 안될수도 있다.<br>이는 운영체제가 전부 해주기 때문인데, 실제로는 커널 오브젝트를 참조하는 대상이 하나라도 없을때 소멸시키기 위해서 Usage Count을 사용한다.</p>
+<p>CloseHandle은 Usage Count을 하나 차감해주는 일을 해줄뿐이다.<br>이때 0이 되면 소멸되게 된다.</p>
+<h1 id="부모-프로세스가-자식-프로세스-핸들을-곧바로-리턴하는-이유"><a href="#부모-프로세스가-자식-프로세스-핸들을-곧바로-리턴하는-이유" class="headerlink" title="부모 프로세스가 자식 프로세스 핸들을 곧바로 리턴하는 이유"></a>부모 프로세스가 자식 프로세스 핸들을 곧바로 리턴하는 이유</h1><p>자식 프로세스의 핸들을 부모 프로세스에서 반환하지 않을 경우 자식 프로세스를 종료하더라도 자식 프로세스의 커널 오브젝트가 소멸되지 않게된다.<br>이럴 경우 리소스가 낭비된다. 때문에 자식 프로세스를 종료하면 그 커널 오브젝트까지 같이 소멸시키기 위해 자식 프로세스를 생성하자 마자 핸들을 반환하는 것이다.</p>
+<p>추가로 자식 프로세스의 핸들 반환 시간을 늦춰야 하는 경우는 자식 프로세스의 종료코드를 얻기 위해서는 자식 프로세스의 커널 오브젝트에 접근해야 하므로 핸들 반환 시간을 늦춰야 한다.</p>
+<h1 id="커널-오브젝트의-2가지-상태의-의미"><a href="#커널-오브젝트의-2가지-상태의-의미" class="headerlink" title="커널 오브젝트의 2가지 상태의 의미"></a>커널 오브젝트의 2가지 상태의 의미</h1><p>커널 오브젝트의 상태는 해당 리소스에 특정 상황이 발생하였음을 존재하기 위해 사용된다. 각 상태의 용도는<br>커널 오브젝트의 타입에 따라 다르다.</p>
+<p>Signaled<br>NonSignaled </p>
+<h1 id="WaitForSingleObject-WaitForMultipleObject"><a href="#WaitForSingleObject-WaitForMultipleObject" class="headerlink" title="WaitForSingleObject, WaitForMultipleObject"></a>WaitForSingleObject, WaitForMultipleObject</h1><p>해당 커널 오브젝트 상태가 Signaled라면 통과 아니라면 블록킹된다.<br>WaitForMultipleObject은 둘이상의 커널 오브젝트를 검사할때 사용된다.</p>
+<h1 id="프로세스간-통신-기법이-별도로-존재하는-이유"><a href="#프로세스간-통신-기법이-별도로-존재하는-이유" class="headerlink" title="프로세스간 통신 기법이 별도로 존재하는 이유"></a>프로세스간 통신 기법이 별도로 존재하는 이유</h1><p>운영체제는 가상메모리 기법을 사용해서 프로세스마다 가상의 독립된 메모리 주소를 부여하기 때문에,<br>프로세스간 메모리 공유가 되지 않는다. 그래서 IPC를 통해 공유한다.</p>
+<h1 id="핸들테이블"><a href="#핸들테이블" class="headerlink" title="핸들테이블"></a>핸들테이블</h1><p>앞써 핸들은 간단한 숫자정보을 가지고 있는데, OS는 테이블에서 참조해서 처리한다.<br>핸들 테이블은 핸들 정보를 저장하고 있는 테이블로써, 프로세스별로 독립적이다.<br>당연하게도 상속된 핸들의 커널 오브젝트의 Usage Count는 참조한 만큼의 크기와 동일하다.<br>단 CreateProcess을 할때 핸들에 상속이 일어나며, 테이블에 상속여부에 체크가 들어간다.</p>
+<h1 id="가짜-핸들-Psedo-핸들"><a href="#가짜-핸들-Psedo-핸들" class="headerlink" title="가짜 핸들(Psedo 핸들)"></a>가짜 핸들(Psedo 핸들)</h1><p>GetCurrentProcess 함수를 통해 얻는 핸들은 가짜핸들이라고 한다.<br>여기에서 얻은 핸들은 핸들 테이블에 실제 등록되어 있지않다. 다만 현재 실행중인 프로세스를 참조하기 위한 용도이기 때문에,<br>약속된 상수 -1이 리턴된다.</p>
+<p>DuplicateHandle을 통해 실제 핸들을 가져올수있다. 그리고 이 함수를 통해 가져온다면 Usage Count도 동시에 증가하기 때문에<br>CloseHandle을 꼭 해줘야 된다.</p>
+<h1 id="Pipe"><a href="#Pipe" class="headerlink" title="Pipe"></a>Pipe</h1><p>이름없는 파이프 - 지극히 관계(부모 자식, 형제 관계) 프로세스들 사이에 통신을 하는 경우<br>이름있는 파이프 - 주소정보를 가지고 있는 프로세스가 서로 관계가 없는 프로세스 사이에게도 주소 정보를 공유함으로써 데이터를 주고받게 된다.</p>
+<h1 id="선점형-OS-비-선점형-OS"><a href="#선점형-OS-비-선점형-OS" class="headerlink" title="선점형 OS, 비 선점형 OS"></a>선점형 OS, 비 선점형 OS</h1><p>비선점형 OS는 현재 실행중인 프로세스보다 높은 우선순위의 프로세스가 등장한다고 해서 실행의 대상을 바로 변경하지 않는다.</p>
+<p>선점형은 우선순위가 높은 프로세스를 우선적으로 처리하고 동일한 우선순위인 경우(우선순위 큐), 시간을 나누어서 처리한다.(Time Slice - RR)</p>
+<h1 id="함수-호출규약"><a href="#함수-호출규약" class="headerlink" title="함수 호출규약"></a>함수 호출규약</h1><p>함수 호출시 전달되는 인자가 스택에 쌓이는 순서를 알수가 있다. 또한 함수 호출과정에서 할당된 스택 프레임을 반환하는 방법에도 두가지가 존재한다.</p>
+<p><strong>stdcall 키워드 : C/C++ 디폴트 호출규약, 오른쪽에 전달되는 인자가 먼저 스택에 쌓이는 방식
+</strong>cdecl 키워드 : <strong>stdcall 호출된 함수내에서 스택 프레임을 반환
+</strong>fastcall 키워드 : 함수 호출을 빠르게 하기 위한 호출규약. -&gt; 레지스터를 사용한다.</p>
+<h1 id="프로세스와-스레드의-차이"><a href="#프로세스와-스레드의-차이" class="headerlink" title="프로세스와 스레드의 차이"></a>프로세스와 스레드의 차이</h1><p>멀티프로세스 상태와 달리 메모리 영역을 공유한다.<br>윈도우 입장에서는 프로세스는 단순히 쓰레드를 담는 상자에 지나지 않는다.<br>프로세스간 문맥교환의 비용보다 하나의 프로세스안의 스레드를 문맥교환하는 것이 비용이 싼데 이는 메모리 영역을 공유하기 때문이다.</p>
+<h1 id="커널-영역-유저-영역"><a href="#커널-영역-유저-영역" class="headerlink" title="커널 영역, 유저 영역"></a>커널 영역, 유저 영역</h1><p>일반 프로그램을 실행하기 위해서 필요한 메모리 공간과 운영체제의 실해을 위한 메모리 공간을 분리시켜놓지 않으면, 관리하기 힘들어질수 있다.</p>
+<p>유저 영역은 사용자에 의해 할당된느 메모리 공간을 말한다. 코드, 데이터, 스택, 힙 영역.<br>커널 영역은 프로세스 내에서 유저 영역이 아닌 공간을 말한다. 레지스터 등.</p>
+<h1 id="커널-레벨-쓰레드-유저레벨-쓰레드"><a href="#커널-레벨-쓰레드-유저레벨-쓰레드" class="headerlink" title="커널 레벨 쓰레드, 유저레벨 쓰레드"></a>커널 레벨 쓰레드, 유저레벨 쓰레드</h1><p>프로그래머의 요청에 따라 쓰레드를 생성 및 스케쥴링하는 주체가 커널인 경우 커널 레벨 쓰레드라고 한다.<br>커널에서 쓰레드 기능 지원을 하지않을때도 쓸수 있다. 즉 쓰레드 기능의 주체에 따라 나뉜다.</p>
+<p>커널쓰레드를 사용할경우, 안전하고 다양하게 기능을 지원해주지만, 유저모드에서 커널 모드로 전환이 빈번하게 일어나면 성능에 저하가 생긴다.</p>
+<p>유저쓰레드를 사용하게 될 경우, 전환이 없으므로 빠르지만, 커널이 쓰레드의 존재를 모르기 때문에, 커널에 의해 프로세스가 블록킹된경우 자연스럽게 다른 스레드도 실행되지 않으며 결과 예측이 힘들어진다.</p>
+<h1 id="프로세스로부터-쓰레드-분리"><a href="#프로세스로부터-쓰레드-분리" class="headerlink" title="프로세스로부터 쓰레드 분리"></a>프로세스로부터 쓰레드 분리</h1><p>쓰레드의 Usage Count는 생성과 동시에 2가 되고, 하나는 쓰레드 종료시 감소하고 나머지 하나는 쓰레드 핸들을 인자로 CloseHandle 함수를 호출할때 감소한다.</p>
+<p>쓰레드 생성시 반환된 핸들값을 인자로 전달하면서 CloseHandle 함수가 곧바로 호출된다. 이렇게 되면 Usage Count가 1이 되고, 쓰레드 종료함과 동시에 Usage Count가 0이 되며, 모든 메모리를 반환하게 된다. 이를 프로세스로부터 쓰레드를 분리한다고 한다.</p>
+<p>[6-12], [6-13] </p>
+<h1 id="유저-모드-동기화와-커널-모드-동기화"><a href="#유저-모드-동기화와-커널-모드-동기화" class="headerlink" title="유저 모드 동기화와 커널 모드 동기화"></a>유저 모드 동기화와 커널 모드 동기화</h1><p>유저 모드 동기화</p>
+<p>커널의 힘을 빌리지 않는 동기화 기법. 동기화를 위해 커널모드로 전환이 불필요하기 때문에 성능이 좋음.</p>
+<ul>
+<li><p>임계영역<br>  Shared Data가 2개 이상의 쓰레드가 동시에 연산이 실행될경우, 문제가 발생하는데 이러한 문제를 일으키는 코드블록을 임계영역이라고 한다.</p>
+</li>
+<li><p>SPIN LOCK<br>  CPU 자원을 소모하면서 획득을 대기한다.<br>  대기시간이 길어지면 CPU 낭비가 크다.<br>  대기시간이 짧다면 바로 자원획득이 가능하고, 문맥교환에 대한 오버헤드가 거의 없이 임계영역에 접근 가능하다.</p>
+</li>
+<li><p>CRITICAL_SECTION<br>  베타적 접근이 요구되는 공유 리소스에 접근하는 코드 블록</p>
+</li>
+<li><p>Interlock<br>  Lock이라고 써져있지만 락은 아니다. 해당 연산이 Atomic하다는 것이다.<br>  즉 이 연산만큼은 동기화 문제가 없다.</p>
+</li>
+<li><p>SRWLock<br>  크리티컬 섹션에 비해, 적은 메모리와 빠른 수행속도를 가진다.<br>  정보가 너무 적어서 재귀 락, 현재 락을 소유하는 스레드를 알수가 없다.<br>  A 스레드에서 락을 걸었더라도 B 쓰레드에서 락을 풀수 있다.</p>
+</li>
+<li><p>커널 모드 동기화<br>  커널 모드이기 때문에, 안전하고 다양한 기능을 제공받지만 커널 모드에서 유저모드로 전환이 필요하므로 여기에서 부하가 너무 크다.</p>
+</li>
+<li><p>Mutex<br>  뮤텍스 커널 오브젝트를 통해 하나의 스레드에서 WaitForSingleObject을 요청하고,  Signaled가 되면 이 스레드는 임계영역에 대해 접근권을 가지게 된다. 만약 Non-Signaled 상태라면, 해당 스레드는 블록킹된다. 그리고 접근한 스레드는 ReleaseMutex을 통해서 반납을 하게된다.</p>
+</li>
+<li><p>Semaphore<br>  뮤텍스와 달리 여러 스레드가 동시에 접근이 가능하다.<br>  해당 세마포어는 세마포어 카운트를 가지고 있고, 스레드들이 WaitForSingleObject를 통해 임계영역에 대한 접근권을 가져갈때마다 1씩 차감되고, ReleaseSemaphore를 할때마다 1씩 증가한다. 만약 세마포어 카운트가 0이라면, 블록킹된다.</p>
+</li>
+<li><p>Event<br>  이벤트는 위의 동기화기법과 달리 실행순서에 대한 동기화 기법이다.<br>  자동리셋 모드가 있고, 수동리셋 모드가 있다.</p>
+<p>  이벤트 커널 오브젝트를 SetEvnet함수를 통해 Signaled화 하면 수동인 경우<br>  ResetEvent을 해야 Non-Signaled로 변하고, 자동 리셋인 경우 WaitforSingleObject를 통해 스레드가 통과되자마자 Non-Signaled 상태로 변한다.</p>
+<p>  나는, 이것을 스레드 스위치로 써서 종료용으로 쓸 예정이다.</p>
+</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 리턴 이벤트 핸들</span></span><br><span class="line"><span class="comment">// 인자 보안지정자,</span></span><br><span class="line"><span class="comment">// bManualReset	-&gt; true : 수동 리셋, false - 자동 리셋</span></span><br><span class="line"><span class="comment">// bInitialState -&gt; true : 초기 이벤트 Signaled 상태, false : 초기 이벤트 Non-Signaled 상태</span></span><br><span class="line"><span class="comment">// lpName -&gt; 이벤트 오브젝트에 이름</span></span><br><span class="line">CreateEvent(보안속성 지정자, bManualReset, bInitialState, lpName);</span><br></pre></td></tr></table></figure>
+<h1 id="스레드-풀링의-이해와-동작원리"><a href="#스레드-풀링의-이해와-동작원리" class="headerlink" title="스레드 풀링의 이해와 동작원리"></a>스레드 풀링의 이해와 동작원리</h1><blockquote>
+<p>스레드 풀 : 쓰레드의 생성과 소멸은 시스템에 많은 부담을 준다. 때문에 빈번한 스레드의 생성과 소멸은 속도 저하를 유발하는데, 미리 일정량의 스레드를 만들어놓고 일거리가 있다면 스레드 풀에서 가져온뒤, 사용하고 스레드 풀에 반환한다.</p>
+</blockquote>
+<h1 id="메모리-계층별-역할"><a href="#메모리-계층별-역할" class="headerlink" title="메모리 계층별 역할"></a>메모리 계층별 역할</h1><ul>
+<li>Register - CPU 안에 내장되어 있는 메모리. 연산을 위한 저장</li>
+<li>L1 Cache - 캐쉬 메모리는 원래 CPU의 일부로 존재하는 메모리 개념이 아니고 CPU에 근접한 메모리 개념</li>
+<li>L2 Cache</li>
+<li>Main Memory - DRAM과 같은 메모리</li>
+<li>HDD</li>
+</ul>
+<blockquote>
+<p>프로그래머는 레지스터, 캐쉬, 메인메모리, HDD 뿐만아니라, IO 장치들과 입출력 타이밍 및 대기시간 등을 가장 중요한 요소로 생각하고 항상 고민해야 된다.</p>
+</blockquote>
+<blockquote>
+<p>계층이 위로 갈수록 비싸고, 아래로 갈수록 싸진다.<br>만약 연산을 할때, 연산에 필요한 데이터가 레지스터에 존재하지않는다면 L1 캐쉬 다음 L2 캐쉬 순으로 내려가면서 찾게된다. 내려갈수록 CPU에 올리는속도는 점점 떨어진다.</p>
+</blockquote>
+<h1 id="가상메모리"><a href="#가상메모리" class="headerlink" title="가상메모리"></a>가상메모리</h1><blockquote>
+<p>내 메인메모리가 512M인데, 프로세스에 4G할당되있는 경우가 있다. 이게 가능한 이유는 가상메모리가 있기 때문이다.</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">32비트 시스템에서 프로세스 생성시 4G 바이트의 메모리를 할당받을수 있다.</span><br><span class="line">하지만 메인메모리가 부족하기에, 4G는 실제 존재하지않은 가상의 주소다.</span><br><span class="line">이 가상의 주소를 가르켜 가상 주소 지정이라고 하며, 이 가상주소지정을 통해 4G을 가르켜 가상 메모리 공간이라고 한다.</span><br><span class="line"></span><br><span class="line">가상메모리을 구현하는 방법으로는 대부분 페이징(Paging) 기법을 사용한다.</span><br><span class="line"></span><br><span class="line">CPU -&gt; MMU -&gt; (0-4K) 할당하는 식인데, MMU를 통해 적은 메모리가 마치 많은 메모리인것 처럼 CPU가 느끼게 만들어준다.</span><br><span class="line"></span><br><span class="line">블록의 크기는 시스템에 따라 다르지만 이런 블록을 HW에서는 페이지 프레임(물리 메모리에서 할당된 페이지)이라고 부르며, 소프트웨어에서는 페이지라고 부른다.(가상메모리에서 할당)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>MMU는 가상메모리와 물리메모리를 서로 매핑(페이지 테이블)하며 CPU가 요청시에 매핑된 물리메모리를 참조해서 전송해준다. </p>
+</blockquote>
+<h1 id="스레드-기아현상"><a href="#스레드-기아현상" class="headerlink" title="스레드 기아현상"></a>스레드 기아현상</h1><blockquote>
+<p>어떤 스레드가 자기 처리시간을 기다리는데, 다른 쓰레드들이 CPU 할당시간을 모두 잡고있어서 CPU 시간을 사용할수 없게되는 현상</p>
+</blockquote>
+<h1 id="페이지-락"><a href="#페이지-락" class="headerlink" title="페이지 락"></a>페이지 락</h1><blockquote>
+<p>Overlapped IO을 사용했을때, Overlapped IO의 장점중 하나가 사용자가 지정한 버퍼를 바로 사용할수가 있다. 하지만 이걸 사용할 경우, Data Buffer가 Page Lock이 걸린다. IO 작업시에 문제가 될수 있기 때문이고 Page Lock이 되면 디스크로 Swap 될수가 없기 때문에 사용하게 된다. 하지만 논페이지드 메모리와 달리 이는 페이징으로 가상메모리위에서 락이 걸려있는 상황이다.</p>
+</blockquote>
+<h1 id="논-페이지드-메모리"><a href="#논-페이지드-메모리" class="headerlink" title="논 페이지드 메모리"></a>논 페이지드 메모리</h1><blockquote>
+<p>절대 페이징될수 없는 메모리이고, 이는 물리메모리에 올라온다. 즉 가상메모리라고 볼수 없다.<br>페이징 될수 없다는것은 디스크로 Swap이 되지않는다는것이다.<br>Overlapped IO에서는 Device Driver 의 일정 사이즈의 IO 요청 리스트가 Non-paged Pool에 들어간다.</p>
+</blockquote>
+<h1 id="페이지-폴트"><a href="#페이지-폴트" class="headerlink" title="페이지 폴트"></a>페이지 폴트</h1><blockquote>
+<p>프로그램이 동작할때 필요한 메모리가 상주하게 되는데, 이때 가상메모리로 페이징 단위로 올라오게된다. 하지만 프로그램의 전체 메모리가 올라오는것은 아니기 때문에, CPU에서 MMU에 요청한 데이터가 실제 물리메모리에 페이징 프레임안에 있지않다면 이를 페이지 폴트라고 한다. 이때는 가상메모리로부터 swap 시켜 가져와야된다.</p>
+</blockquote>
+<h1 id="스래싱"><a href="#스래싱" class="headerlink" title="스래싱"></a>스래싱</h1><blockquote>
+<p>스래싱은 페이지 폴트가 무수히 많이 발생하여 페이징 스왑이 빈번히 일어나는 상황을 말한다.</p>
+</blockquote>
+<h1 id="힙-컨트롤"><a href="#힙-컨트롤" class="headerlink" title="힙 컨트롤"></a>힙 컨트롤</h1><ul>
+<li>디폴트 힙 컨트롤 : 기본적으로 프로세스 생성시에 힙은 1M바이트 기본크기를 가진다.</li>
+<li>다이나믹 힙 컨트롤<ul>
+<li>시스템 함수 호출을통해 생성되는 힙은 동적힙이라고 함.</li>
+<li>메모리 단편화 최소화에 따른 성능 향상</li>
+<li>동기화 문제에서 자유로워진다. -&gt; 둘이상의 쓰레드가 동시접근에 발생한 문제소지가 있어 윈도우에서는 내부적으로 동기화를 처리중이다.</li>
+</ul>
+</li>
+</ul>
+<h1 id="MMF-Memory-Mapped-File"><a href="#MMF-Memory-Mapped-File" class="headerlink" title="MMF(Memory Mapped File)"></a>MMF(Memory Mapped File)</h1><blockquote>
+<p>File을 Memory에 Mapping(연결)시킨다는 의미를 지니고 있다.<br>프로세스의 가상메모리일부가 파일의 일부 영역에 연결되어있는데 이를 하게 해주는 매커니즘을 MMF라 한다.</p>
+</blockquote>
+<p>-&gt; 프로그래밍이 편리해진다. 메모리상의 저장된 데이터 조작이 훨씬 편하다. 파일을 일단 메모리에 올려서 처리하고 다시 저장하는 과정을 하게되는데, MMF을 사용하면 메모리상에 저장된 데이터를 조작하는 방식으로 파일내 데이터를 조작할수 있다.</p>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-04-02</span><i class="fa fa-tag"></i><a class="tag" href="/tags/OS/" title="OS">OS </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/04/02/OS-정리/,Mute의 개발 블로그,OS-정리,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/03/31/cpp-class-size/" title="C++에서의 클래스 크기, sizeof">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify: || false, 
+  verify:|| false, 
+  app_id:'',
+  app_key:'',
+  placeholder:'',
+  path: window.location.pathname,
+  avatar:''
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
