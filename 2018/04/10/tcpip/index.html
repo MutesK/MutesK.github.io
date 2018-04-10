@@ -1,233 +1,199 @@
-<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>TCPIP ���� �������� · Mute의 개발 블로그</title><meta name="description" content="TCP/IP ������ ���� ����
-
-�ʱ� ���ͳ� ȣ��Ʈ �䱸������ ������ RFC 1122���� ��ũ ����, IP ����, ���� ����, ���� �������� ����.
-OSI(Open System Interconnection"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>TCPIP ���� ��������</a></h3></div><div class="post-content"><h1>TCP/IP ������ ���� ����</h1>
-<blockquote>
-<p>�ʱ� ���ͳ� ȣ��Ʈ �䱸������ ������ RFC 1122���� ��ũ ����, IP ����, ���� ����, ���� �������� ����.</p>
-<p>OSI(Open System Interconnection) 7 ���� ���������� ����, ������ ��ũ, ��Ʈ��ũ, ����, ����, ǥ��, ���� �������� ������.</p>
-<p>���� ���� ���߿����� ����, ��ũ, ��Ʈ��ũ, ����, ���� ������ ������ ������, �� ������ ������ �ڱ� ���� ������ �����ϱ� ���� �����ؾ� �ϴ� ������ �ִ�.</p>
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>TCPIP 스택 계층구조 · Mute의 개발 블로그</title><meta name="description" content="TCP/IP 스택의 계층 구조
+초기 인터넷 호스트 요구사항을 정의한 RFC 1122에선 링크 계층, IP 계층, 전송 계층, 응용 계층으로 구분.
+OSI(Open System Interconnection) 7 계층 모형에서는 물리, 데이터 링크, 네트워크, 전송, 세션"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>TCPIP 스택 계층구조</a></h3></div><div class="post-content"><h1 id="TCP-IP-스택의-계층-구조"><a href="#TCP-IP-스택의-계층-구조" class="headerlink" title="TCP/IP 스택의 계층 구조"></a>TCP/IP 스택의 계층 구조</h1><blockquote>
+<p>초기 인터넷 호스트 요구사항을 정의한 RFC 1122에선 링크 계층, IP 계층, 전송 계층, 응용 계층으로 구분.</p>
+<p>OSI(Open System Interconnection) 7 계층 모형에서는 물리, 데이터 링크, 네트워크, 전송, 세션, 표현, 응용 계층으로 나뉜다.</p>
+<p>게임 서버 개발에서는 물리, 링크, 네트워크, 전송, 응용 계층과 관련이 있으며, 각 계층은 저마다 자기 윗단 계층을 지원하기 위해 수행해야 하는 역할이 있다.</p>
 </blockquote>
 <ul>
-<li>���� �������κ��� ������ ��� ����</li>
-<li>���� ���(Header)�� �߰��ϰ� �ʿ��ϴٸ� Footer�� �߰�</li>
-<li>�����͸� �Ʒ��� �������� �����ϸ鼭 �۽� ������ ����� ������.</li>
-<li>�Ʒ��� �������� ���ŵ� �����͸� �޴´�.</li>
-<li>����� �����Ͽ� ���ŵ� �������� ��Ŷ�� Ǭ��.</li>
-<li>���ŵ� �����͸� ���� �������� ������ ����ó���� ����� ������.</li>
+<li>윗단 계층으로부터 데이터 블록 수신</li>
+<li>계층 헤더(Header)를 추가하고 필요하다면 Footer도 추가</li>
+<li>데이터를 아랫단 계층으로 전달하면서 송신 과정을 계속해 나간다.</li>
+<li>아랫단 계층에서 수신된 데이터를 받는다.</li>
+<li>헤더를 제거하여 수신된 데이터의 패킷을 푼다.</li>
+<li>수신된 데이터를 윗단 계층으로 전달해 수신처리를 계속해 나간다.</li>
 </ul>
-<h1>���� ����</h1>
-<blockquote>
-<p>���� �⺻���� �ϵ���� ������ �����ϴ� ����.</p>
+<h1 id="물리-계층"><a href="#물리-계층" class="headerlink" title="물리 계층"></a>물리 계층</h1><blockquote>
+<p>가장 기본적인 하드웨어 전송을 지원하는 계층.</p>
 </blockquote>
-<h1>��ũ ����</h1>
-<blockquote>
-<p>���������� ����� ȣ��Ʈ ������ ��� ������ ����</p>
-<p>�ۼ��� ������ **������(frame)**�̶� �Ѵ�.</p>
+<h1 id="링크-계층"><a href="#링크-계층" class="headerlink" title="링크 계층"></a>링크 계층</h1><blockquote>
+<p>물리적으로 연결된 호스트 사이의 통신 수단을 제공</p>
+<p>송수신 단위는 <strong>프레임(frame)</strong>이라 한다.</p>
 </blockquote>
 <ol>
-<li>Ư�� �������� �ּҸ� �ο��Ͽ� �� �����ӿ� ������� �Ͽ� ȣ��Ʈ�� �ĺ��Ѵ�. (Mac Address)</li>
-<li>���� �� �ּҿ� �����͸� ������ �ִ� ������ ���� ����</li>
-<li>�ѹ��� �󸶳� �����͸� ������ �ִ��� ���� ���̾�� �˼� �ְԲ� �������� �ִ� ũ�� ����(MTU)</li>
-<li>���� ������ ���� ���޵� ��ȣ�� �ǵ��� ȣ��Ʈ�� �����Ҽ� �ְ� �������� �������� �����ȣ�� ��ȯ�ϴ� ��� ����</li>
+<li>특정 목적지에 주소를 부여하여 각 프레임에 기재토록 하여 호스트를 식별한다. (Mac Address)</li>
+<li>수신 측 주소와 데이터를 담을수 있는 프레임 포맷 정의</li>
+<li>한번에 얼마나 데이터를 보낼수 있는지 윗단 레이어에서 알수 있게끔 프레임의 최대 크기 정의(MTU)</li>
+<li>물리 계층을 거쳐 전달된 신호를 의도된 호스트가 수신할수 있게 프레임을 물리적인 전기신호로 변환하는 방법 정의</li>
 </ol>
 <blockquote>
-<p>��ũ ������ �������� �����ϴ� �Ϳ� ���� Ȯ���̳� ���и� üũ�����ʴ´�. Unreliable ���</p>
+<p>링크 계층은 프레임이 도착하는 것에 대해 확인이나 실패를 체크하지않는다. Unreliable 통신</p>
 </blockquote>
-<h2>�̴��� ��������</h2>
-<blockquote>
-<p>���� ȣ��Ʈ�� �����ϱ� ���� ��ü ���� ���� �ּ� (Mac Address : Media Access Control Address).</p>
-<p>Mac �ּҴ� �̷л� ������ 48��Ʈ ���ڷμ� ��Ʈ��ũ�� ���� ������ ��� �ϳ��ϳ� ���� ������ ���� �ο��Ѵ�.</p>
-<p>Mac �ּҴ� ���� ���� �ĺ���(Univarsally Unique Identity, UUID)�� ���� -&gt; ������ �� �ּҴ� ���� �ϵ���� �ĺ��ڰ� �ƴϰ� ��? ����Ʈ���������� �ٲܼ� �ְԵǾ����.</p>
-<p>�̴��� ǥ�� ���̷ε� �ִ� ���̴� 1500 ����Ʈ�� ���� �̸� MTU(Maximum Transmission Unit) �̶�� �ϸ� �ѹ� ���ۿ� �ִ��� ������ �ִ� �������� ���� ���Ѵ�. &gt; ���� ���� �������̶�� �ؼ� �ִ� 9000 ����Ʈ���� MTU�� �����Ѵ�. NIC�� ������ ����� Ư�� �̴� Ÿ�Ӱ��� ����Ͽ� ���ŵ� �����Ϳ� ���� �������� ũ�⸦ ���</p>
-<p><strong>���̷ε�</strong>���� �����ʹ� �� ���̾��� �������� <strong>��Ʈ��ũ ���� ������ ������</strong>�� ����ִ�.</p>
+<h2 id="이더넷-프로토콜"><a href="#이더넷-프로토콜" class="headerlink" title="이더넷 프로토콜"></a>이더넷 프로토콜</h2><blockquote>
+<p>여러 호스트를 구분하기 위해 매체 접근 제어 주소 (Mac Address : Media Access Control Address). </p>
+<p>Mac 주소는 이론상 고유한 48비트 숫자로서 네트워크에 연결 가능한 장비 하나하나 마다 고유한 값을 부여한다.</p>
+<p>Mac 주소는 범용 고유 식별자(Univarsally Unique Identity, UUID)의 일종 -&gt; 요즘의 맥 주소는 고유 하드웨어 식별자가 아니게 됬? 소프트웨어적으로 바꿀수 있게되어버림.</p>
+<p>이더넷 표준 페이로드 최대 길이는 1500 바이트로 정의 이를 MTU(Maximum Transmission Unit) 이라고 하며 한번 정송에 최대한 담을수 있는 데이터의 양을 뜻한다. &gt; 요즘 점보 프레임이라고 해서 최대 9000 바이트까지 MTU를 지원한다. NIC가 프레임 헤더에 특정 이더 타임값을 기록하여 수신된 데이터에 따라 프레임의 크기를 계산</p>
+<p><strong>페이로드</strong>안의 데이터는 위 레이어의 데이터인 <strong>네트워크 전송 계층의 데이터</strong>가 담겨있다.</p>
 </blockquote>
-<h1>��Ʈ��ũ ����</h1>
-<h2>���� ������ �� �ʿ��Ѱ�?</h2>
-<ol>
-<li>MAC �ּҰ� �ϵ��� ���εǾ� �������� ��������.
-<ul>
-<li>���� ���� ������ NIC�� ���峵�ٸ� ���� ������ ���� ������ �����Ҽ� ����.</li>
+<h1 id="네트워크-계층"><a href="#네트워크-계층" class="headerlink" title="네트워크 계층"></a>네트워크 계층</h1><h2 id="상위-계층이-왜-필요한가"><a href="#상위-계층이-왜-필요한가" class="headerlink" title="상위 계층이 왜 필요한가?"></a>상위 계층이 왜 필요한가?</h2><ol>
+<li>MAC 주소가 하드웨어에 각인되어 유연성이 떨어진다. <ul>
+<li>만약 현재 서버의 NIC가 고장났다면 기존 유저는 현재 서버에 접근할수 없다.</li>
 </ul>
 </li>
-<li>��ũ �������δ� ���ͳ��� ���� ���� ��Ʈ��ũ ������ ������ ����.
-<ol>
-<li>��ü ��Ʈ��ũ�� ���ϸ��� �����ؾ߸� �Ѵ�. ������ �ϳ��ϳ� ���������� ������ ��� ȣ��Ʈ���� �������� ������ �����ؾ� �ȴ�.</li>
-<li>��Ʈ��ũ �� �������� ���� �ٸ� ���� ������ ������ �� ������ ����.</li>
+<li>링크 계층으로는 인터넷을 보다 작은 네트워크 망으로 나눌수 없다.<ol>
+<li>전체 네트워크가 단일망에 접속해야만 한다. 프레임 하나하나 보낼때마다 지구상 모든 호스트에게 프레임일 일일히 전송해야 된다.</li>
+<li>네트워크 망 지역마다 서로 다른 보안 영역을 구분해 둘 수단이 없다.</li>
 </ol>
 </li>
-<li>��ũ ������ ��ũ ���������� �ٸ� ��ũ �������ݷ� �����ϴ� ����� ���ǵǾ� ���� �ʴ�.</li>
+<li>링크 계층은 링크 프로토콜을 다른 링크 프로토콜로 번역하는 방법이 정의되어 있지 않다.</li>
 </ol>
 <blockquote>
-<p>��Ʈ��ũ ������ ��ũ ���� ���� �� �ּ� ü�� ������ �����Ѵ�.</p>
-<p>�̷ν� �ּ� ������ �������� ���� ��Ʈ��ũ�� �ݸ��� �����ϰ�, �ָ� ������ �����Ʈ��ũ ���̿� ��ũ ���� �������ݰ� ���� ��ü�� �޶� ����� ����</p>
+<p>네트워크 계층은 링크 계층 위에 논리 주소 체계 인프라를 구축한다.</p>
+<p>이로써 주소 걱정이 없어지고 서브 네트워크로 격리도 가능하고, 멀리 떨어진 서브네트워크 사이에 링크 계층 프로토콜과 물리 매체가 달라도 통신이 가능</p>
 </blockquote>
-<h2>IPv4</h2>
-<blockquote>
-<p>�� ȣ��Ʈ���� �������� �ּ� �ο��ϰ�, ����� ü��� �ּ� ������ ���� �κ� ������ ������ ������ ���� ��Ʈ��ũ�� �����ϴµ� ����Ѵ�.</p>
-<p>����� ü��� ����� ���̿��� �����͸� ���� �����Ѵ�.</p>
+<h2 id="IPv4"><a href="#IPv4" class="headerlink" title="IPv4"></a>IPv4</h2><blockquote>
+<p>각 호스트마다 개별적인 주소 부여하고, 서브넷 체계로 주소 공간의 논리적 부분 집합을 나누어 물리적 서브 네트워크를 정의하는데 사용한다.</p>
+<p>라우팅 체계로 서브넷 사이에서 데이터를 서로 전달한다.</p>
 </blockquote>
-<h2>ARP</h2>
-<blockquote>
-<p>IPv4 ���������� IP�ּҷ� ��Ŷ�� �������� �����Ѵ�. ��ũ ������ ��Ŷ�� �����ϰԲ��ϱ����ؼ��� ��ũ ������ �����ϴ� �� ��巹���� ��ȯ�� �ʿ��ϴ�.</p>
-<p>������, ��ũ ������ �ּ� ���� ��������(Address Resolution Protocal)�� �־ ��ȯ�� ���� �ۼ����ϰ� �ȴ�. &gt; ��ũ ���� ���������̶�� ���� ��ũ ���� &lt;-&gt; ��Ʈ��ũ ������ �ٸ��� �˾Ƶδ°� ����.</p>
+<h2 id="ARP"><a href="#ARP" class="headerlink" title="ARP"></a>ARP</h2><blockquote>
+<p>IPv4 프로토콜은 IP주소로 패킷의 목적지를 지정한다. 링크 계층이 패킷을 전달하게끔하기위해서는 링크 계층이 이해하는 맥 어드레스로 변환이 필요하다.</p>
+<p>다행히, 링크 계층에 주소 결정 프로토콜(Address Resolution Protocal)이 있어서 변환을 통해 송수신하게 된다. &gt; 링크 계층 프로토콜이라기 보다 링크 계층 <-> 네트워크 계층의 다리로 알아두는게 편함.</-></p>
 </blockquote>
-<h2>TTL</h2>
-<blockquote>
-<p>����Ʈ���̰� ��Ŷ�� �޾� �����Ҷ����� IPv4 ����� TTL �ʵ� ���� �ϳ��� �����ǰ�, �̷��� �����ν� ������ ������ ��Ŷ�� ���ټ��ִ�.</p>
-<p>TTL�� �����Ҷ����� üũ���� �ٽ� ����ؾߵǹǷ�, ȣ��Ʈ�� ��Ŷ�� ó���ϰ� �����ϴµ� ������尡 �����.</p>
-<p>NIC ť�� �ʹ� ���� ��Ŷ�� ������ ť�� �������°� �Ͼ��. �̷ν� ��Ŷ �ս��� �Ͼ���� �ִ�.</p>
+<h2 id="TTL"><a href="#TTL" class="headerlink" title="TTL"></a>TTL</h2><blockquote>
+<p>게이트웨이가 패킷을 받아 전달할때마다 IPv4 헤더의 TTL 필드 값이 하나씩 차감되고, 이렇게 함으로써 영원히 떠도는 패킷을 없앨수있다.</p>
+<p>TTL을 변경할때마다 체크섬도 다시 계산해야되므로, 호스트가 패킷을 처리하고 전달하는데 오버헤드가 생긴다.</p>
+<p>NIC 큐에 너무 많은 패킷이 들어오면 큐잉 지연사태가 일어난다. 이로써 패킷 손실이 일어날수도 있다.</p>
 </blockquote>
-<h2>MTU �ִ�ũ�⸦ �Ѿ �����ϰ� �Ǹ�?</h2>
-<blockquote>
-<p>MTU�� 1500����Ʈ�ε�, IPv4 ��Ŷ�� �ִ� ũ��� 65535 ����Ʈ�̴�.</p>
-<p>MTU �ִ�ũ�� ���� ū �����͸� �����ϰ� �Ǹ� Fragmentation�� �Ͼ��, MTU ũ��� �������� ���� ��Ŷ�� ������ �ȴ�.</p>
-<p>�ɰ���������, �п� �ĺ��� �ʵ�, �п� ������ �ʵ�, �п� �÷��� �ʵ忡 �����ϰ� ���� ������ ������ �������� �̸� �����ϰ� �ȴ�.</p>
-<p>IPv4 ��Ŷ �п��� ��ȿ������ ���� �ִ�.</p>
+<h2 id="MTU-최대크기를-넘어서-전송하게-되면"><a href="#MTU-최대크기를-넘어서-전송하게-되면" class="headerlink" title="MTU 최대크기를 넘어서 전송하게 되면?"></a>MTU 최대크기를 넘어서 전송하게 되면?</h2><blockquote>
+<p>MTU는 1500바이트인데, IPv4 패킷의 최대 크기는 65535 바이트이다.</p>
+<p>MTU 최대크기 보다 큰 데이터를 전송하게 되면 Fragmentation이 일어나고, MTU 크기로 나누어진 여러 패킷을 보내게 된다.</p>
+<p>쪼개질때마다, 분열 식별자 필드, 분열 오프셋 필드, 분열 플래그 필드에 적절하게 값을 나누고 보낸뒤 수신측은 이를 조합하게 된다.</p>
+<p>IPv4 패킷 분열은 비효율적인 면이 있다.</p>
 <ol>
-<li>���� ��Ʈ��ũ�� �������� ������ ���� ��������.</li>
-<li>������ �ϳ��� ������ ������� ���� �ٽú����� �ȴ�.</li>
+<li>실제 네트워크로 보내지는 데이터 양이 많아진다.</li>
+<li>조각중 하나의 조각만 사라지면 몽땅 다시보내야 된다.</li>
 </ol>
-<p>�̷ν� ���Ӽ��� �������� ����ÿ�, MTU�� 1500���� ��ƾ� �Ѵ�.</p>
-<p>�׷��ٸ� MTU�� �ƿ� �۰� ��ƹ�����. ��Ŷ���� 20����Ʈ�� ����� �ʿ��Ѵٴ� ���� ���� �������̴�.</p>
+<p>이로써 게임서버 프로토콜 설계시에, MTU를 1500으로 잡아야 한다.</p>
+<p>그렇다면 MTU를 아예 작게 잡아버리면. 패킷마다 20바이트의 헤더가 필요한다는 점을 보면 낭비적이다.</p>
 </blockquote>
-<h1>���� ����</h1>
-<blockquote>
-<p>��Ʈ��ũ ������ ���� ��Ʈ��ũ �� ���� �ָ� ������ ȣ��Ʈ ������ ����� �����ϴ°Ŷ��, ���� ������ ȣ��Ʈ�� ���� ���μ��� ������ ����� �����ϰ� �Ѵ�.</p>
-<p>Host A���� Host B�� ������ IP�� �����ٸ� � ���μ����� �� ���� �ѰܾߵǴ� ������ ����. �׷��� ���� ���������� Port��� �³��� �����ϰ� �ȴ�.</p>
-<p>���μ����� Ư�� ��Ʈ�� ���ε� �صθ�, ���� ���� ����� �� ��Ʈ�� ���޵Ǵ� ��� �����͸� �� ���μ����� �ѱ��.</p>
-<p>��Ʈ�� 16��Ʈ �����̰�, 0 ~ 1023�� �ý��� ��Ʈ, 49152 ~ 65535�� ������Ʈ��� �Ѵ�. 1024 ~ 49151�� ����� ��Ʈ, ��� ��Ʈ��� �θ���.</p>
+<h1 id="전송-계층"><a href="#전송-계층" class="headerlink" title="전송 계층"></a>전송 계층</h1><blockquote>
+<p>네트워크 게층은 원격 네트워크 상 서로 멀리 떨어진 호스트 사이의 통신을 촉진하는거라면, 전송 계층은 호스트상 개별 프로세스 사이의 통신을 가능하게 한다.</p>
+<p>Host A에서 Host B로 보낼때 IP로 보낸다면 어떤 프로세스에 그 값을 넘겨야되는 정보가 없다. 그래서 전송 계층에서는 Port라는 걔념을 도입하게 된다.</p>
+<p>프로세스가 특정 포트를 바인딩 해두면, 전송 계층 모듈은 그 포트로 전달되는 모든 데이터를 그 프로세스에 넘긴다.</p>
+<p>포트는 16비트 숫자이고, 0 ~ 1023은 시스템 포트, 49152 ~ 65535는 동적포트라고 한다. 1024 ~ 49151은 사용자 포트, 등록 포트라고 부른다.</p>
 </blockquote>
-<h2>UDP</h2>
-<blockquote>
-<p>�淮 ������������, �����͸� �����ϰ� ȣ��Ʈ�� � ��Ʈ���� �ٸ� ȣ��Ʈ�� �� � ��Ʈ�� �����ϴµ� ����.</p>
-<p>�� ȣ��Ʈ�� ���� ���¿��� �������� �ʰ�, Ʈ������ ������������ ������, �������ް� ���޿��� ������ �����ʴ´�.</p>
+<h2 id="UDP"><a href="#UDP" class="headerlink" title="UDP"></a>UDP</h2><blockquote>
+<p>경량 프로토콜으로, 데이터를 포장하고 호스트의 어떤 포트에서 다른 호스트의 또 어떤 포트로 전달하는데 쓴다.</p>
+<p>두 호스트간 공유 상태에도 의존하지 않고, 트레픽을 제한해주지도 않으며, 순차전달과 전달에도 보장이 되지않는다.</p>
 </blockquote>
-<h2>TCP</h2>
-<blockquote>
-<p>�ŷڼ��� �ִ� ���������̰�, TCP�� ������ ���� ������ ���׸�Ʈ��� �Ѵ�.</p>
-<p>��������� �帧���� �׸��� ȥ����� �����ȴ�.</p>
-<p>Byte Stream �����̸� Full Deplex�̴�.</p>
+<h2 id="TCP"><a href="#TCP" class="headerlink" title="TCP"></a>TCP</h2><blockquote>
+<p>신뢰성이 있는 프로토콜이고, TCP의 데이터 전송 단위를 세그먼트라고 한다.</p>
+<p>오류제어와 흐름제어 그리고 혼잡제어가 지원된다.</p>
+<p>Byte Stream 전송이며 Full Deplex이다.</p>
 </blockquote>
-<h3>�ŷڼ�</h3>
-<blockquote>
-<p>TCP�� �� ȣ��Ʈ ���̿��� �ŷڼ� �ְ� �����͸� �ְ������, �����ϰ� �ĺ��Ҽ� �ִ� ��Ŷ�� �߽� ȣ��Ʈ�� ���� ȣ��Ʈ���� ������ Ȯ�� ���� ACK�� ��ٸ���, ���� ȣ��Ʈ�� ACK�� ������ ��Ŷ���� �����Ѵ�.</p>
-<p>�������� ACK�� ���� ������ �۽� ȣ��Ʈ�� ��Ŷ�� �������Ѵ�.</p>
+<h3 id="신뢰성"><a href="#신뢰성" class="headerlink" title="신뢰성"></a>신뢰성</h3><blockquote>
+<p>TCP가 두 호스트 사이에서 신뢰성 있게 데이터를 주고받을때, 고유하게 식별할수 있는 패킷을 발신 호스트가 수신 호스트에게 보내고 확인 응답 ACK을 기다리며, 수신 호스트는 ACK를 기재한 패킷으로 응답한다.</p>
+<p>한참동안 ACK가 오지 않으면 송신 호스트는 패킷을 재전송한다.</p>
 </blockquote>
-<h3>3 Way Handshake</h3>
-<blockquote>
-<p>���� ��������</p>
+<h3 id="3-Way-Handshake"><a href="#3-Way-Handshake" class="headerlink" title="3 Way Handshake"></a>3 Way Handshake</h3><blockquote>
+<p>연결 수립과정</p>
 </blockquote>
-<img src="http://cfile9.uf.tistory.com/image/225A964D52F1BB69177202" style="max-width:100%;height:auto" width="550" height="351" filename="tcpopen3way.png" filemime="image/jpeg">
-<h3>4 Way Handshake</h3>
-<blockquote>
+<p><img src="http://cfile9.uf.tistory.com/image/225A964D52F1BB69177202" style="max-width:100%;height:auto" width="550" height="351" filename="tcpopen3way.png" filemime="image/jpeg"></p>
+<h3 id="4-Way-Handshake"><a href="#4-Way-Handshake" class="headerlink" title="4 Way Handshake"></a>4 Way Handshake</h3><blockquote>
 <p>Graceful Shutdown</p>
 </blockquote>
-<img src="http://cfile25.uf.tistory.com/image/2152353F52F1C02835CC3B" style="max-width:100%;height:auto" width="550" height="459" filename="tcp4wayhandshake.png" filemime="image/jpeg">
+<p><img src="http://cfile25.uf.tistory.com/image/2152353F52F1C02835CC3B" style="max-width:100%;height:auto" width="550" height="459" filename="tcp4wayhandshake.png" filemime="image/jpeg"></p>
 <ol>
-<li>Ÿ�Ӿƿ��� �� ����°�?
-<ol>
-<li>TIME_WAIT�� ���� �����Ͱ� ���� ���ɼ��� ����ϰ� �����ð� ����Ѵ�. TIME_WAIT ���´� ���� FIN�� ���� ȣ��Ʈ���� �����.</li>
+<li>타임아웃은 왜 생기는가?<ol>
+<li>TIME_WAIT은 이후 데이터가 들어올 가능성에 대비하고 일정시간 대비한다. TIME_WAIT 상태는 먼저 FIN을 보낸 호스트에게 생긴다.</li>
 </ol>
 </li>
-<li>Ÿ�Ӿƿ��� �������� �����ΰ�?
-<ol>
-<li>TIME_WAIT�� ��Ʈ�� �ش� ��Ʈ�� CLOSED ���°� �ɶ����� ����Ҽ� ���Եȴ�.</li>
+<li>타임아웃의 문제점이 무엇인가?<ol>
+<li>TIME_WAIT의 포트는 해당 포트가 CLOSED 상태가 될때까지 사용할수 없게된다. </li>
 </ol>
 </li>
-<li>���Ӽ������� Ÿ�Ӿƿ��� ���ټ� �ִ� �����?
-<ol>
-<li>Ŭ���̾�Ʈ�� FIN�� ��� �Ѵ�.</li>
-<li>���� �Լ� �ɼ��� LINGER �ɼǿ��� (1, 0)�� �ְ� �ϰ� CloseSocket�� �ϰԵǸ� RST ��ȣ�� ������ �Ѵ�. �̷��� �Ǹ� Hard or abortive ���ᰡ �ȴ�.</li>
+<li>게임서버에서 타임아웃을 없앨수 있는 방법은?<ol>
+<li>클라이언트가 FIN을 쏘게 한다.</li>
+<li>소켓 함수 옵션의 LINGER 옵션에서 (1, 0)을 주게 하고 CloseSocket을 하게되면 RST 신호를 보내게 한다. 이렇게 되면 Hard or abortive 종료가 된다.</li>
 </ol>
 </li>
 </ol>
-<h2>MSS</h2>
-<blockquote>
-<p>�̴����� ���̷ε尡 1500 ����Ʈ��� �ߴ�. IPv4 ����� �ּ� 20����Ʈ�� �����ϰ�, TCP ����� ��� 20 ����Ʈ�� �������� ���� ����, �п��� �������� TCP ���׸�Ʈ�� ������ �ִ� �ִ� �����ʹ� 1460�� �ȴ�. �̸� MSS��� �Ѵ�.</p>
+<h2 id="MSS"><a href="#MSS" class="headerlink" title="MSS"></a>MSS</h2><blockquote>
+<p>이더넷의 페이로드가 1500 바이트라고 했다. IPv4 헤더가 최소 20바이트를 차지하고, TCP 헤더가 적어도 20 바이트를 가져가는 것을 보면, 분열이 없을때에 TCP 세그먼트가 가질수 있는 최대 데이터는 1460이 된다. 이를 MSS라고 한다.</p>
 </blockquote>
-<h2>RTT</h2>
-<blockquote>
-<p>�����ڰ� ACK�� ���� �߽��ڰ� �޴� �ð��� ���� ���� �պ� �ð��̶�� �Ѵ�.</p>
-<p>�����͸� ������ �޴� �ð��� �ǹ�</p>
+<h2 id="RTT"><a href="#RTT" class="headerlink" title="RTT"></a>RTT</h2><blockquote>
+<p>수신자가 ACK를 보내 발신자가 받는 시간을 더한 것을 왕복 시간이라고 한다.</p>
+<p>데이터를 보낸후 받는 시간을 의미</p>
 </blockquote>
-<h2>�帧����</h2>
-<blockquote>
-<p>TCP�� �����߿� ACK ���̵� ���� ���׸�Ʈ�� �Ѳ����� ������ �ִ�.</p>
-<p>���� CPU���� ���ư��� ������ ���μ����� �ִٸ� �����͸� �Һ��ϴ� �ӵ��� �����ϴ� �ӵ��� ������� ���ϸ�   ���۰� �������� ���ŵ� �����Ͱ� ��������.</p>
-<p>�׷��� TCP�� �帧���� ����� ����ϰ�, <strong>���� �۽� ȣ��Ʈ�� ���� ���� ȣ��Ʈ�� �е����� ���ϰ� �����ϴ� ���</strong>�̴�.</p>
-<p>TCP ������� ���� ���� �ʵ尡 �־� ��Ŷ�� ���� ȣ��Ʈ�� ���� ���� �������� �����ϰ� �Ǿ��ִ�. (������ ������)</p>
-<p>���������� ���� ������ TCP �۽ſ� ���������� ����Ƿ�, �̷л� �뿪�� �ִ�ġ�� ȣ��Ʈ ���� ��ũ ������ �ִ� ���۷��� �Ѿ���� ���������� ����� ū������ ������ �ȴ�.</p>
-<p><strong>�뿪�� �ѵ� = �������� ũ�� / �պ��ð�</strong></p>
-<p>���� �����̵� ������ ����� ����.</p>
+<h2 id="흐름제어"><a href="#흐름제어" class="headerlink" title="흐름제어"></a>흐름제어</h2><blockquote>
+<p>TCP는 연결중에 ACK 없이도 여러 세그먼트를 한꺼번에 보낼수 있다.</p>
+<p>느린 CPU에서 돌아가는 복잡한 프로세스가 있다면 데이터를 소비하는 속도가 도착하는 속도를 따라기지 못하면   버퍼가 가득차서 수신된 데이터가 버려진다.</p>
+<p>그래서 TCP는 흐름제어 기법을 사용하고, <strong>빠른 송신 호스트가 느린 수신 호스트를 압도하지 못하게 제어하는 기법</strong>이다.</p>
+<p>TCP 헤더에는 수신 윈도 필드가 있어 패킷을 보낸 호스트의 수신 버퍼 여유량을 기재하게 되어있다. (윈도우 사이즈)</p>
+<p>수신윈도를 작제 잡으면 TCP 송신에 병목현상이 생기므로, 이론상 대역폭 최대치가 호스트 사이 링크 계층의 최대 전송률을 넘어서도록 수신윈도를 충분히 큰값으로 만들어야 된다.</p>
+<p><strong>대역폭 한도 = 수신윈도 크기 / 왕복시간</strong></p>
+<p>흔히 슬라이딩 윈도우 기법을 쓴다.</p>
 </blockquote>
-<p>![�����̵� ������](<img src="http://www.jidum.com/upload/ckeditor/2016/09/20160908103658670.png" alt="img"></p>
-<h2>ȥ������</h2>
-<blockquote>
-<p>�帧 ��� ����ϴ���, TCP�� ���� �ܸ� ȣ��Ʈ�� ���� �����ͷ� �е��Ǵ� ��Ȳ�� ������ ������, ���� ��Ʈ��ũ�� ����Ϳ� �����ϴ� ������ ����.</p>
-<p>��Ŷ�� ũ�⸦ MSS ���̿� �°� ���߾ ��Ʈ��ũ ȥ���� ���̴� ����� �ִ�.</p>
-<p>�� ��Ŷ�� 40����Ʈ ����� �پ�� �ϹǷ�, ���� ���׸�Ʈ�� ������ ������ �ͺ���, ū ���׸�Ʈ�� �ϳ��� ���ļ� �����°��� ȿ�����̴�.</p>
-<p>���� ���̱� �˰����� ����Ѵ�.</p>
+<p><img src="![img](http://www.jidum.com/upload/ckeditor/2016/09/20160908103658670.png" alt="슬라이딩 윈도우"></p>
+<h2 id="혼잡제어"><a href="#혼잡제어" class="headerlink" title="혼잡제어"></a>혼잡제어</h2><blockquote>
+<p>흐름 제어를 사용하더라도, TCP가 느린 단말 호스트를 많은 데이터로 압도되는 상황은 막을수 있으나, 느린 네트워크와 라우터에 과부하는 막을수 없다.</p>
+<p>패킷의 크기를 MSS 길이에 맞게 맞추어서 네트워크 혼잡을 줄이는 기법이 있다.</p>
+<p>각 패킷에 40바이트 헤더가 붙어야 하므로, 작은 세그먼트를 여러개 보내는 것보다, 큰 세그먼트를 하나로 합쳐서 보내는것이 효율적이다.</p>
+<p>흔히 네이글 알고리즘을 사용한다.</p>
 </blockquote>
-<h4>���̱� �˰���</h4>
-<blockquote>
-<p>��Ʈ��ũ �ڿ��� ȿ�������� Ȱ���Ϸ���, �����̵� ������ ����� ����Ѵ�.<br>
-ACK���� �ʾƵ� ������ ũ��(Windows Size) ��ŭ �����͸� ��� ������ �־ ������ ��������.</p>
-<p>�̶� �Ѱ�ġ�� MSS ũ�⳪ ȥ������ ���� �� ���������� �Ѵ�.</p>
+<h4 id="네이글-알고리즘"><a href="#네이글-알고리즘" class="headerlink" title="네이글 알고리즘"></a>네이글 알고리즘</h4><blockquote>
+<p>네트워크 자원을 효율적으로 활용하려면, 슬라이딩 윈도우 방식을 사용한다.<br>ACK받지 않아도 윈도우 크기(Windows Size) 만큼 데이터를 계속 보낼수 있어서 성능이 좋아진다.</p>
+<p>이때 한계치는 MSS 크기나 혼잡제어 윈도 중 작은것으로 한다.</p>
 </blockquote>
 <ol>
-<li>���� �����Ͱ� MSS�� ���ǵ� ũ�⸸ŭ ���̸� ����</li>
-<li>������ ACK�� �´ٸ� ����</li>
+<li>보낼 데이터가 MSS로 정의된 크기만큼 쌓이면 전송</li>
+<li>상대방이 ACK가 온다면 전송</li>
 </ol>
-<p>���� - ���� ��Ŷ�� ���ʿ��ϰ� �����Ǵ� ���� �����ϰ�, Ʈ������ ���δ�.</p>
-<p>���� - �����Ͱ� ����� ���� �ð�, ACK�� ���½ð��� ����ϹǷ� ����ð��� �������.</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> opval = <span class="literal">true</span>; <span class="comment">// �ߴ��ϴ¹�</span></span><br><span class="line">setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span> *)&amp;opval, <span class="keyword">sizeof</span>(opval));</span><br></pre></td></tr></table></figure>
-<h1>���� ����</h1>
-<blockquote>
-<p>���Ӽ��� �ڵ带 �ۼ��ϴ°��� �� ���� ������ ���α׷����ϴ� ��.</p>
+<p>장점 - 작은 패킷이 불필요하게 생성되는 일을 방지하고, 트래픽을 줄인다.</p>
+<p>단점 - 데이터가 충분히 쌓을 시간, ACK가 오는시간을 대기하므로 응답시간이 길어진다.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">bool</span> opval = <span class="literal">true</span>; <span class="comment">// 중단하는법</span></span><br><span class="line">setsockopt(socket, IPPROTO_TCP, TCP_NODELAY, (<span class="keyword">char</span> *)&amp;opval, <span class="keyword">sizeof</span>(opval));</span><br></pre></td></tr></table></figure>
+<h1 id="응용-계층"><a href="#응용-계층" class="headerlink" title="응용 계층"></a>응용 계층</h1><blockquote>
+<p>게임서버 코드를 작성하는것이 이 응용 계층에 프로그래밍하는 것.</p>
 </blockquote>
-<h2>DHCP</h2>
-<blockquote>
-<p>DHCP(Dynamic host configuration protocal) ����ϸ� ��⸦ ��Ʈ��ũ�� �����⸸ �ϸ� DHCP�� ������ �ڵ����� ����</p>
+<h2 id="DHCP"><a href="#DHCP" class="headerlink" title="DHCP"></a>DHCP</h2><blockquote>
+<p>DHCP(Dynamic host configuration protocal) 사용하면 기기를 네트워크에 물리기만 하면 DHCP가 설정을 자동으로 관리</p>
 </blockquote>
-<h2>DNS</h2>
-<blockquote>
-<p>DNS(Domain Name System) �����ΰ� ���굵���� ������ IP�ּҷ� �ؼ��ϴµ� ���</p>
+<h2 id="DNS"><a href="#DNS" class="headerlink" title="DNS"></a>DNS</h2><blockquote>
+<p>DNS(Domain Name System) 도메인과 서브도메인 네임을 IP주소로 해석하는데 사용</p>
 </blockquote>
-<h2>NAT</h2>
-<blockquote>
-<p>������ ���α׷����� �ܺ� �ּҷ� ���⿣ �����ϰ� ���ɼ� �ִ�. �ܺ�IP�� ���� IP�� ���� �θ�,  �ܺ� ��Ʈ��ũ �ۼ��Žø� ���� NAT ���̺��� ����� �۽� IP�� Port�� �ٽ� ����Ͽ� �����Ѵ�.</p>
+<h2 id="NAT"><a href="#NAT" class="headerlink" title="NAT"></a>NAT</h2><blockquote>
+<p>수많은 프로그램들이 외부 주소로 쓰기엔 부족하고 고갈될수 있다. 외부IP와 내부 IP를 따로 두며,  외부 네트워크 송수신시를 위해 NAT 테이블을 만들고 송신 IP와 Port을 다시 기록하여 전송한다.</p>
 </blockquote>
 <p><img src="https://binfalse.de/wp-content/uploads/2011/06/NAT.png" alt="Network Topology"></p>
 <blockquote>
-<p>������ ���Ӽ��� ���߿����� ���� �ʴ´�.</p>
+<p>하지만 게임서버 개발에서는 좋지 않는다. </p>
 <ul>
-<li>NAT ������ ���� �ڽ��� �缳 IP�� �˻� � ���� IP�� �ܺο� ����ϰ� �ִ��� �𸥴�.</li>
-<li>NAT �ۿ��� NAT ���� ���� ����ϴ� Peer�� ������ ���� IP�� NAT�� �Ҵ��� Port�� �˰� �缳 IP�� �𸥴�.</li>
-<li>NAT �ܺ��� Peer�� ���� NAT ������ ���� ����� ���� (initiate) �� �� ����.</li>
+<li>NAT 하위의 장비는 자신의 사설 IP만 알뿐 어떤 공인 IP로 외부와 통신하고 있는지 모른다.</li>
+<li>NAT 밖에서 NAT 하위 장비와 통신하는 Peer는 상대방의 공인 IP와 NAT가 할당한 Port만 알고 사설 IP는 모른다.</li>
+<li>NAT 외부의 Peer는 먼저 NAT 하위의 장비로 통신을 시작 (initiate) 할 수 없다.</li>
 </ul>
 </blockquote>
-<h3>Ȧ ��Ī</h3>
-<blockquote>
-<p>NAT��� ��Ʈ��ũ ��� �ΰ� �־ �������� TCP/UDP ����� �Ұ����� Peer�鰣�� �������� ����� ������ �� �ֵ��� (IP, PORT) Ȯ���ϴ� ���� ���Ѵ�.</p>
-<p>Ȧ��Ī�� �ʿ��� ������ P2P (Peer-to-Peer) ����� �����̳� ��� ��Ŀ����� Ŭ���̾�Ʈ���� ���� ������ �ΰ� ����� �����Ͽ��� �ϴµ�, �����ϴ� Ŭ���̾�Ʈ�� NAT ������ �����Ѵٸ� ���� ������ �Ұ����ϱ� �����̴�</p>
+<h3 id="홀-펀칭"><a href="#홀-펀칭" class="headerlink" title="홀 펀칭"></a>홀 펀칭</h3><blockquote>
+<p>NAT라는 네트워크 장비를 두고 있어서 직접적인 TCP/UDP 통신이 불가능한 Peer들간에 직접적인 통신이 가능할 수 있도록 (IP, PORT) 확보하는 것을 말한다.</p>
+<p>홀펀칭이 필요한 이유는 P2P (Peer-to-Peer) 기반의 게임이나 통신 방식에서는 클라이언트끼리 직접 연결을 맺고 통신을 진행하여야 하는데, 참여하는 클라이언트가 NAT 하위에 존재한다면 직접 연결이 불가능하기 때문이다</p>
 </blockquote>
 <ol>
-<li>Ŭ���̾�Ʈ��  NAT �ۿ� �����ϴ� ���Ӽ��� Ȥ�� ������ ������ ������� �� ��Ŷ�� ������.</li>
-<li>�̶� �۽���Ŷ�� �������  NAT�� �Ҵ���� ����IP�� NAT�� �ش� Ŭ���̾�Ʈ���� �ο��� PORT�� ��ϵǾ� �ְ� �ȴ�.</li>
-<li>������ �ش� ������ ���̷ε忡 ����Ͽ� �ٽ� Ŭ���̾�Ʈ���� ������ �����ش�.</li>
-<li>�̷ν� ������ Ŭ���̾�Ʈ���� �ڽ��� ���� ��Ʈ��ũ ������ �˰ԵǾ���.</li>
+<li>클라이언트가  NAT 밖에 존재하는 게임서버 혹은 릴레이 서버로 내용없는 빈 패킷을 보낸다.</li>
+<li>이때 송신패킷의 헤더에는  NAT가 할당받은 공인IP와 NAT가 해당 클라이언트에게 부여한 PORT가 기록되어 있게 된다. </li>
+<li>서버는 해당 정보를 페이로드에 기록하여 다시 클라이언트에게 응답을 보내준다.</li>
+<li>이로써 각각의 클라이언트들은 자신의 공인 네트워크 정보를 알게되었다.</li>
 </ol>
 <blockquote>
-<p>NAT�� �پ��� ����� �����ϹǷ� �̿� ���� ���� ���ΰ� �¿�ǰ� �ȴ�.</p>
-<p>���� IP/PORT�� ��ȿ�� �ð��� �������� ���� �� �����Ƿ�, �ʿ信 ���� �ֱ����� heartbeat�� ������ ���� �ʿ��� �� �ִ�. �Ƹ� �ʼ����� �� �ϴ�.</p>
+<p>NAT도 다양한 방식이 존재하므로 이에 따라서 성공 여부가 좌우되게 된다.</p>
+<p>공인 IP/PORT가 유효한 시간은 무한하지 않을 수 있으므로, 필요에 따라서 주기적인 heartbeat을 날리는 것이 필요할 수 있다. 아마 필수적일 듯 하다.</p>
 </blockquote>
-<h1>Reference</h1>
-<ol>
-<li>��Ƽ�÷��̾� ���� ���α׷��� [��� ���ǻ� - ������ �۷�����, ������ �����Ϻ� ����, ������ �ű�]</li>
-<li><a href="http://www.jidum.com/jidums/view.do?jidumId=422" target="_blank" rel="noopener">iLiFO ���� : ������ TCP/IP �帧����</a></li>
-<li><a href="https://m.blog.naver.com/PostView.nhn?blogId=stallon72&amp;logNo=10140690228&amp;proxyReferer=https%3A%2F%2Fwww.google.co.kr%2F" target="_blank" rel="noopener">��Ż�� : Ȧ��Ī �ʰ��� ����</a></li>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li>멀티플레이어 게임 프로그래밍 [길벗 출판사 - 조슈아 글레이저, 산제이 마드하브 지음, 장준혁 옮김]</li>
+<li><a href="http://www.jidum.com/jidums/view.do?jidumId=422" target="_blank" rel="noopener">iLiFO 지덤 : 네지덤 TCP/IP 흐름제어</a></li>
+<li><a href="https://m.blog.naver.com/PostView.nhn?blogId=stallon72&amp;logNo=10140690228&amp;proxyReferer=https%3A%2F%2Fwww.google.co.kr%2F" target="_blank" rel="noopener">스탈롱 : 홀펀칭 초간단 개요</a></li>
 </ol>
-</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-04-10</span><i class="fa fa-tag"></i><a class="tag" href="/tags/network/" title="network">network </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/04/10/tcpip/,Mute의 개발 블로그,TCPIP ���� ��������,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/04/09/EffectiveCppChap4/" title="Effective C++ 챕터 4 설계 및 선언">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-04-10</span><i class="fa fa-tag"></i><a class="tag" href="/tags/network/" title="network">network </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/04/10/tcpip/,Mute의 개발 블로그,TCPIP 스택 계층구조,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/04/09/EffectiveCppChap4/" title="Effective C++ 챕터 4 설계 및 선언">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
   el:'#vcomments',
   notify: || false, 
   verify:|| false, 
