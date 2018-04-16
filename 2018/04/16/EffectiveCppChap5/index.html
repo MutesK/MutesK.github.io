@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="ko-KR"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><meta name="author" content="JunMin Kim, j0803@naver.com"><title>Effective C++ 챕터 5 구현 · Mute의 개발 블로그</title><meta name="description" content="Item 26 변수 정의는 늦출수 있는데까지 늦추는 근성을 발휘하자.
+생성자 혹은 소멸자를 끌고 다니는 타입(자주호출의 의미)으로 변수를 정의하면 2가지의 비용이 존재.
+
+프로그램 제어 흐름이 변수의 정의에 닿을때, 생성자가 호출되는 비용
+변수가 유효범위를 벗어날때 소"><meta name="keywords" content="C++,C,PHP,Windows OS"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black" name="apple-mobile-web-app-status-bar-style"><meta content="telephone=no" name="format-detection"><meta name="renderer" content="webkit"><link rel="short icon" href="/images/favicon.png" type="image/x-icon"><link rel="stylesheet" href="/css/style.css"><link rel="stylesheet" href="/css/blog_basic.css"><link rel="stylesheet" href="/css/font-awesome.min.css"><link rel="alternate" type="application/atom+xml" title="ATOM 1.0" href="/atom.xml"></head><body><div class="sidebar animated fadeInDown"><div class="logo-title"><div class="title"><img src="/images/logo@2x.png" style="width:127px;"><h3 title=""><a href="/">Mute의 개발 블로그</a></h3><div class="description"><p>게임 서버 개발 및 각종개발기술 공부</p></div></div></div><ul class="social-links"><li><a href="/atom.xml"><i class="fa fa-rss"></i></a></li><li><a href="http://github.com/MutesK"><i class="fa fa-github"></i></a></li></ul></div><div class="main"><div class="page-top animated fadeInDown"><div class="nav"><li><a href="/">홈</a></li><li><a href="/about">정보</a></li><li><a href="/archives">아카이브</a></li><li><a href="/links">포트폴리오 링크</a></li></div><div class="information"><div class="back_btn"><li><a class="fa fa-chevron-left" onclick="window.history.go(-1)"> </a></li></div><div class="avatar"><img src="/images/favicon.png"></div></div></div><div class="autopagerize_page_element"><div class="content"><div class="post-page"><div class="post animated fadeInDown"><div class="post-title"><h3><a>Effective C++ 챕터 5 구현</a></h3></div><div class="post-content"><h1 id="Item-26-변수-정의는-늦출수-있는데까지-늦추는-근성을-발휘하자"><a href="#Item-26-변수-정의는-늦출수-있는데까지-늦추는-근성을-발휘하자" class="headerlink" title="Item 26 변수 정의는 늦출수 있는데까지 늦추는 근성을 발휘하자."></a>Item 26 변수 정의는 늦출수 있는데까지 늦추는 근성을 발휘하자.</h1><blockquote>
+<p>생성자 혹은 소멸자를 끌고 다니는 타입(자주호출의 의미)으로 변수를 정의하면 2가지의 비용이 존재.</p>
+<ol>
+<li>프로그램 제어 흐름이 변수의 정의에 닿을때, 생성자가 호출되는 비용</li>
+<li>변수가 유효범위를 벗어날때 소멸자가 호출되는 비용</li>
+</ol>
+<p>해당 객체가 정말 필요한 시점에 선언을 해야된다. 불필요한 변수에 대해 생성자와 소멸자의 호출에 필요한 처리시간을 낭비할수도 있기 때문이다.</p>
+</blockquote>
+<h1 id="Item-27-캐스팅은-절약-또-절약-잊지-말자"><a href="#Item-27-캐스팅은-절약-또-절약-잊지-말자" class="headerlink" title="Item 27 캐스팅은 절약, 또 절약! 잊지 말자"></a>Item 27 캐스팅은 절약, 또 절약! 잊지 말자</h1><ul>
+<li><code>const_cast&lt;T&gt;</code> 객체의 상수성을 없애는 용도</li>
+<li><code>dynamic_cast&lt;T&gt;</code> 안전한 다운캐스팅을 할때, 사용하는 캐스팅</li>
+<li><code>reinterpret_cast&lt;T&gt;</code> Pointer를 int로 바꾸는 등의 하부수준 캐스팅을 위해 만들어진 연산자. 결과는 구현환경에 의존적. (integer Type =&gt; pointer Type, pointer Type -&gt; interger Type, Pointer Type =&gt; Another Type)</li>
+<li><code>static_cast&lt;T&gt;</code> 암시적 변환을 강제로 진행할때 사용한다.</li>
+</ul>
+<blockquote>
+<p>캐스팅을 하게되면 그 해당 캐스팅의 값의 사본이 임시적으로 만들어지고, 그 사본에 대해 처리하게 된다.</p>
+<p>문자열 비교 연산에 기반을 둔 <code>dynamic_cast&lt;T&gt;</code>는 클래스 이름을 비교하기 위해서 strcmp가 최대 4번이 호출될 가능성이 있다. 상속 깊이가 더 있거나, 다중상속이라면 그 비용은 커지게 된다.</p>
+<p><code>dynamic_cast&lt;T&gt;</code> 을 쓰려면 파생 클래스의 객체에 대한 포인터를 컨테이너에 담아둬서, 기본 클래스 인터페이스를 통해 조작할 필요가 없게 만든다. 또한 가상함수를 만들어서 처리하도록 한다.</p>
+</blockquote>
+<ol>
+<li>다른 방법이 있다면 캐스팅은 피하고, 수행 성능이 민감하다면 dynamic_cast는 다시 생각</li>
+<li>캐스팅이 어쩔수 없이 필요하다면 함수 안에 숨겨라, 최소한 사용자는 자신의 코드에 캐스팅을 넣지 않고, 함수를 호출하게 된다.</li>
+<li>C++ 스타일의 캐스팅을 써라, 발견하기 쉽고, 역할을 뚜렷하게 볼수 있다.</li>
+</ol>
+<h1 id="Item-28-내부에서-사용하는-객체에-대한-‘핸들’을-반환하는-코드는-되도록-피하자"><a href="#Item-28-내부에서-사용하는-객체에-대한-‘핸들’을-반환하는-코드는-되도록-피하자" class="headerlink" title="Item 28 내부에서 사용하는 객체에 대한 ‘핸들’을 반환하는 코드는 되도록 피하자."></a>Item 28 내부에서 사용하는 객체에 대한 ‘핸들’을 반환하는 코드는 되도록 피하자.</h1><h2 id="핸들"><a href="#핸들" class="headerlink" title="핸들"></a>핸들</h2><blockquote>
+<p>다른 객체에 손을 댈수 있게 만드는 매개제</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 값에 의한 전달보다 참조에 의한 전달방식이 효율적이다.</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Point</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setX</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">setY</span><span class="params">(<span class="keyword">int</span> newVal)</span></span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">RectData</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    Point ulhc;</span><br><span class="line">    Point hlhc;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="built_in">shared_ptr</span>&lt;RectData&gt; pData;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc;&#125;   </span><br><span class="line">    <span class="function">Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;hlhc;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//  Point 반환된 참조자 객체를 통해서  Point가  수정될수 있다. 즉 캡슐화에 문제가 생긴다.</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rectangle</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">upperLeft</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;ulhc;&#125;   </span><br><span class="line">    <span class="function"><span class="keyword">const</span> Point&amp; <span class="title">lowerRight</span><span class="params">()</span> <span class="keyword">const</span> </span>&#123; <span class="keyword">return</span> pData-&gt;hlhc;&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 하나는 해결되었지만, Dangling Handle 문제가 있을수 있다.</span></span><br></pre></td></tr></table></figure>
+<h1 id="Item-29-예외-안전성이-확보되는-그날-위해-싸우고-또-싸우자"><a href="#Item-29-예외-안전성이-확보되는-그날-위해-싸우고-또-싸우자" class="headerlink" title="Item 29 예외 안전성이 확보되는 그날 위해 싸우고 또 싸우자"></a>Item 29 예외 안전성이 확보되는 그날 위해 싸우고 또 싸우자</h1><blockquote>
+<p> Exception safety을 확보하는 작업은 매우 힘들다.</p>
+</blockquote>
+<h2 id="예외-안정성을-확보하기-위한-조건"><a href="#예외-안정성을-확보하기-위한-조건" class="headerlink" title="예외 안정성을 확보하기 위한 조건"></a>예외 안정성을 확보하기 위한 조건</h2><ol>
+<li>자원이 새도록 만들지 않는다.</li>
+<li>자료구조가 더럽혀지는 것을 허용하지 않는다.</li>
+</ol>
+<h2 id="예외-안정성을-갖춘-함수가-보장하는-것"><a href="#예외-안정성을-갖춘-함수가-보장하는-것" class="headerlink" title="예외 안정성을 갖춘 함수가 보장하는 것"></a>예외 안정성을 갖춘 함수가 보장하는 것</h2><ol>
+<li>기본적 보장<ol>
+<li>함수 동작 중에 예외가 발생하면, 실행 중인 프로그램에 관련된 모든 것들을 유효한 상태로 유지.</li>
+</ol>
+</li>
+<li>강력한 보장<ol>
+<li>함수 동작 중에 예외가 발생하면, 프로그램 상태를 절대로 변경하지 않겠다는 보장. Atomic 동작이라고 할수 있음.</li>
+</ol>
+</li>
+<li>예외 금지 보장<ol>
+<li>절대 예외를 던지지 않겠다는 보장. 약속한 동작은 언제나 끝까지 완수하는 함수</li>
+</ol>
+</li>
+</ol>
+<h2 id="정리"><a href="#정리" class="headerlink" title="정리"></a>정리</h2><ol>
+<li>강력한 예외 안정성 보장은 복사 후 Swap 방식을 써서 구현할수는 있지만, 모든 함수에 대해 실용적이지 않는다.</li>
+</ol>
+<h1 id="Item-30-인라인-함수는-미주알고주알-따져서-이해해-주자"><a href="#Item-30-인라인-함수는-미주알고주알-따져서-이해해-주자" class="headerlink" title="Item 30 인라인 함수는 미주알고주알 따져서 이해해 주자."></a>Item 30 인라인 함수는 미주알고주알 따져서 이해해 주자.</h1><blockquote>
+<p>인라인 함수를 사용하면 컴파일러가 함수 본문에 문맥별(constext-spectific) 최적화를 걸기 용이해 진다. 실제로 대부분 컴파일러는 아웃라인 함수 호출에 대해서 이런 최적화를 적용하지 않는다.</p>
+<p>인라인 함수는 함수 호출문을 그 함수의 본문으로 바꿔치기 하는 것. 메모리가 제한된 컴퓨터에서 인라인을 남발하면, 가상 메모리 환경이라고 할지라도 성능의 걸림돌이 된다. 페이징 횟수가 늘어나고, 캐시 적중률도 떨어질 가능성이 있다.</p>
+<p>본문 길이가 굉장히 짧은 인라인 함수를 사용하면, 코드의 크기도 작아지고 명령어 캐시 적중률도 증가한다.</p>
+<p>inline은 컴파일러에게 요청을 할뿐, 명령이 아니다.</p>
+<p>인라인 함수와 템플릿은 대체적으로 header에 있어야 한다. 왜나하면 대부분 빌드 환경에서 인라인을 컴파일 도중에 수행하기 때문이다.</p>
+</blockquote>
+<ol>
+<li>함수 인라인은 작고, 자주 호출된느 함수에 대해서만 사용한다. 이렇게 하면, 디버깅 및 라이브러리의 바이너리 업그레이드가 용이하고, 코드 부풀림 현상이 최소화되고 속력이 빨리진다.</li>
+<li>함수 템플릿이 대개 헤더 파일에 들어간다는 일반적인 부분만 생각해서 이들을 inline으로 선언하면 안된다.</li>
+</ol>
+<h1 id="Item-31-파일-사이의-컴파일-의존성을-최대로-줄이자"><a href="#Item-31-파일-사이의-컴파일-의존성을-최대로-줄이자" class="headerlink" title="Item 31 파일 사이의 컴파일 의존성을 최대로 줄이자"></a>Item 31 파일 사이의 컴파일 의존성을 최대로 줄이자</h1><blockquote>
+<p>C++가 인터페이스와 구현을 깔끔하게 분리하는 일은 별로 좋지 않다.</p>
+<p>C++의 클래스 정의는 클래스 인터페이스만 지정하는 것이 아니라 구현 세부사항까지 지정하고 있음.</p>
+<p>각 객체의 의존성이 파일과 헤더 파일 사이의 컴파일 의존성을 야기하게된다. 또한 이경우 빌드 시간이 늘어난다.</p>
+<p>해당 클래스에 대해 전방선언을 하고, 필요하다면 소스파일에서 <code>#include</code> 한다.</p>
+</blockquote>
+<h2 id="전략"><a href="#전략" class="headerlink" title="전략"></a>전략</h2><ol>
+<li>객체 참조자 및 포인터로 충분한 경우에는 객체를 직접 쓰지 않는다.<ul>
+<li>어떤 타입에 대한 참조자 및 포인터를 정의할때는 그타입의 선언부만 필요함. 반면 어떤 타입의 객체를 정의할때에는 그 타입의 정의가 준비되어야 함</li>
+</ul>
+</li>
+<li>할수 있다면 클래스 정의 대신 클래스 선언에 최대한 의존하도록 만든다.<ul>
+<li>어떤 클래스를 사용하는 함수를 선언할때에는 그 클래스의 정의를 가져오지 않아도 된다. 그 클래스 객체를 값으로 전달하거나 반환하더라도 클래스 정의가 필요없다.</li>
+</ul>
+</li>
+</ol>
+<h2 id="정리-1"><a href="#정리-1" class="headerlink" title="정리"></a>정리</h2><ol>
+<li>컴파일 의존성을 최소화하는 작업의 배경이 되는 가장 기본적 아이디어는 정의대신에 선언에 의존하게 만들자는 것이다.  두가지 접근 방법은 핸들 클래스와 인터페이스 클래스</li>
+<li>라이브러리 헤더는 그 자체로 모든 것을 갖추어야 하며, 선언부만 갖고 있는 형태여야 함.</li>
+</ol>
+</div><div class="post-footer"><div class="meta"><div class="info"><i class="fa fa-sun-o"></i><span class="date">2018-04-16</span><i class="fa fa-tag"></i><a class="tag" href="/tags/C/" title="C++">C++ </a></div></div></div></div><div class="share"><div class="evernote"><a class="fa fa-bookmark" href="javascript:(function(){EN_CLIP_HOST='http://www.evernote.com';try{var%20x=document.createElement('SCRIPT');x.type='text/javascript';x.src=EN_CLIP_HOST+'/public/bookmarkClipper.js?'+(new%20Date().getTime()/100000);document.getElementsByTagName('head')[0].appendChild(x);}catch(e){location.href=EN_CLIP_HOST+'/clip.action?url='+encodeURIComponent(location.href)+'&amp;title='+encodeURIComponent(document.title);}})();" ref="nofollow" target="_blank"></a></div><div class="twitter"><a class="fa fa-twitter" href="http://twitter.com/home?status=,https://Mutesk.github.io/2018/04/16/EffectiveCppChap5/,Mute의 개발 블로그,Effective C++ 챕터 5 구현,;"></a></div></div><div class="pagination"><ul class="clearfix"><li class="next pagbuttons"><a class="btn" role="navigation" href="/2018/04/11/Join/" title="Inner Join, Outer Join">다음 포스트</a></li></ul></div><a id="comments"></a><div id="vcomments" style="margin:0 30px;"></div><script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="//cdn.jsdelivr.net/gh/xcss/valine@v1.1.7/dist/Valine.min.js?v=undefined"></script><script>var valine = new Valine({
+  el:'#vcomments',
+  notify: || false, 
+  verify:|| false, 
+  app_id:'',
+  app_key:'',
+  placeholder:'',
+  path: window.location.pathname,
+  avatar:''
+})</script></div></div></div></div><script src="/js/jquery.js"></script><script src="/js/jquery-migrate-1.2.1.min.js"></script><script src="/js/jquery.appear.js"></script></body></html>
